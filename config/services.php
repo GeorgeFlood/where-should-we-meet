@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'foursquare' => [
+        'key' => env('FOURSQUARE_API_KEY'),
+    ],
+
 ];

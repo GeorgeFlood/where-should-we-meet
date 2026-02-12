@@ -8,5 +8,5 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
 Route::post('/calculate', [MeetingPointController::class, 'calculate']);
+Route::post('/find', [MeetingPointController::class, 'find']);
