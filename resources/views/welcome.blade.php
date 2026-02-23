@@ -77,16 +77,24 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         @media (max-width: 640px) {
-            .panel-card { border-radius: 20px 20px 0 0; }
+            .panel-card {
+                border-radius: 20px 20px 0 0;
+                max-height: 100%;
+            }
         }
 
         .panel-scroll {
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
+            flex: 1;
+            min-height: 0;
         }
         .panel-scroll::-webkit-scrollbar { width: 4px; }
         .panel-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -350,7 +358,7 @@
 
     <!-- Floating panel -->
     <div class="panel">
-        <div class="panel-card flex flex-col" style="max-height: 100%;">
+        <div class="panel-card" style="max-height: 100%;">
 
             <!-- Panel header -->
             <div style="padding: 20px 20px 0;">
@@ -364,7 +372,7 @@
             </div>
 
             <!-- Scrollable content -->
-            <div class="panel-scroll" style="flex: 1; min-height: 0;">
+            <div class="panel-scroll">
                 <form id="meetingForm" style="padding: 0 20px 20px;">
 
                     <!-- Postcode inputs -->
