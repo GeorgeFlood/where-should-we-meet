@@ -273,7 +273,7 @@
             padding: 0 16px;
         }
         .journey-bar-bg {
-            flex: 1;
+            width: 100%;
             height: 8px;
             background: #f1f5f9;
             border-radius: 4px;
@@ -1272,9 +1272,11 @@
 
                 const rowHtml = `
                     <div class="journey-row" style="padding: 6px 0;">
-                        <span style="font-size: 13px; font-weight: 500; color: #475569; min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">${t.from}</span>
-                        <div class="journey-bar-bg" style="flex: 1; min-width: 30px;">
-                            <div class="journey-bar-fill" style="width: ${pct}%; background: ${theme.barColor};"></div>
+                        <span style="font-size: 13px; font-weight: 500; color: #475569; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 72px;">${t.from}</span>
+                        <div style="flex: 1; min-width: 20px; max-width: 120px;">
+                            <div class="journey-bar-bg">
+                                <div class="journey-bar-fill" style="width: ${pct}%; background: ${theme.barColor};"></div>
+                            </div>
                         </div>
                         <span style="font-size: 13px; font-weight: 600; color: #1e293b; flex-shrink: 0; white-space: nowrap;">${formatDuration(t.duration)}${fareTag ? ` <span style="font-size: 11px; font-weight: 600; color: #059669;">· ${fareTag}</span>` : ''}</span>
                         ${hasDisruptions ? '<span style="font-size: 14px; flex-shrink: 0;" title="Disruptions on route">⚠️</span>' : ''}
