@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Meet at {{ $plan['venue']['name'] }} — Where Should We Meet?</title>
+    <title>Meet at {{ $plan['venue']['name'] }} — MeetHere</title>
     <meta property="og:title" content="Let's meet at {{ $plan['venue']['name'] }}!">
     <meta property="og:description" content="{{ $plan['venue']['subcategory'] ?? ucfirst($plan['venue']['type'] ?? 'spot') }} · {{ $plan['venue']['address'] ?? '' }}">
 
@@ -389,7 +389,7 @@
 
         <div class="footer">
             <a class="btn" href="/">Plan your own meetup</a>
-            <p class="small">Made with Where Should We Meet?</p>
+            <p class="small">Made with MeetHere</p>
         </div>
     </div>
 

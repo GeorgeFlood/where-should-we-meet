@@ -2,10 +2,26 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4f46e5">
 
-    <title>Where Should We Meet?</title>
+    <title>MeetHere — Find the fairest meeting spot in London</title>
+    <meta name="description" content="Enter your postcodes, pick the vibe, and we'll find the fairest meeting spot in London with TfL directions, fare splitting, and live arrival tracking.">
+    <meta name="keywords" content="meeting point, London, TfL, fair meeting, postcode, where to meet, travel planner">
+    <link rel="canonical" href="{{ config('app.url') }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ config('app.url') }}">
+    <meta property="og:title" content="MeetHere — Find the fairest meeting spot in London">
+    <meta property="og:description" content="Drop your postcodes, pick the vibe, and we'll find the perfect spot in the middle. With TfL directions, fare splitting, and live tracking.">
+    <meta property="og:image" content="{{ config('app.url') }}/og-image.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MeetHere — Find the fairest meeting spot in London">
+    <meta name="twitter:description" content="Drop your postcodes, pick the vibe, and we'll find the perfect spot in the middle.">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
@@ -17,6 +33,8 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; font-family: 'Instrument Sans', system-ui, sans-serif; }
+        html { height: -webkit-fill-available; }
+        body { min-height: 100vh; min-height: -webkit-fill-available; }
         #map { position: absolute; inset: 0; z-index: 0; }
 
         .panel {
@@ -33,13 +51,15 @@
         .panel > * { pointer-events: auto; }
 
         @media (max-width: 640px) {
+            #map { bottom: 35vh; }
             .panel {
                 top: auto;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 width: 100%;
-                max-height: 65vh;
+                max-height: 60vh;
+                padding-bottom: env(safe-area-inset-bottom, 0);
             }
         }
 
@@ -298,8 +318,8 @@
 
             <!-- Panel header -->
             <div style="padding: 20px 20px 0;">
-                <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">Where Should We Meet?</h1>
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Drop your postcodes, pick the vibe, and we'll find the best spot.</p>
+                <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">MeetHere</h1>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Drop your postcodes, pick the vibe, and we'll find the fairest spot.</p>
             </div>
 
             <!-- Scrollable content -->
@@ -472,10 +492,27 @@
 
             <!-- Footer -->
             <div style="padding: 10px 20px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #f1f5f9;">
-                Powered by TfL &middot; OpenStreetMap
+                MeetHere &middot; Powered by TfL &amp; OpenStreetMap
             </div>
         </div>
     </div>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "MeetHere",
+        "url": "{{ config('app.url') }}",
+        "description": "Find the fairest meeting spot in London. Enter postcodes, pick the vibe, get TfL directions, fare splitting, and live arrival tracking.",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "GBP"
+        }
+    }
+    </script>
 
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -491,6 +528,9 @@
             center: [51.505, -0.09],
             zoom: 12,
             zoomControl: false,
+            tap: true,
+            dragging: true,
+            touchZoom: true,
         });
 
         L.control.zoom({ position: 'topright' }).addTo(map);
@@ -499,6 +539,8 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
             maxZoom: 19,
         }).addTo(map);
+
+        setTimeout(() => map.invalidateSize(), 300);
 
         const personMarkers = {};
         const venueMarkers = [];
