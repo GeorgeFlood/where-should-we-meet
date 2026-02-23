@@ -58,14 +58,15 @@
         .panel > * { pointer-events: auto; }
 
         @media (max-width: 640px) {
-            #map { bottom: 50vh; }
+            #map { bottom: 0; }
             .panel {
                 top: auto;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 width: 100%;
-                max-height: 55vh;
+                max-height: 60vh;
+                height: auto;
                 padding-bottom: env(safe-area-inset-bottom, 0);
             }
         }
@@ -84,6 +85,22 @@
             .panel-card {
                 border-radius: 20px 20px 0 0;
                 max-height: 100%;
+                height: auto;
+            }
+        }
+
+        .panel-handle {
+            display: none;
+        }
+        @media (max-width: 640px) {
+            .panel-handle {
+                display: block;
+                width: 36px;
+                height: 4px;
+                background: #cbd5e1;
+                border-radius: 2px;
+                margin: 8px auto 0;
+                flex-shrink: 0;
             }
         }
 
@@ -359,20 +376,21 @@
     <!-- Floating panel -->
     <div class="panel">
         <div class="panel-card" style="max-height: 100%;">
-
-            <!-- Panel header -->
-            <div style="padding: 20px 20px 0;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                    <div style="width: 32px; height: 32px; background: #4f46e5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </div>
-                    <h1 style="font-size: 20px; font-weight: 700; color: #0f172a;">MeetHere</h1>
-                </div>
-                <p style="font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 14px;">Find the <strong style="color: #4f46e5;">fairest meeting spot</strong> between you and your friends. We'll calculate the best place, directions, costs, and even tell you when to leave.</p>
-            </div>
+            <div class="panel-handle"></div>
 
             <!-- Scrollable content -->
             <div class="panel-scroll">
+                <!-- Panel header (scrolls with content) -->
+                <div id="panelIntro" style="padding: 20px 20px 0;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <div style="width: 32px; height: 32px; background: #4f46e5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <h1 style="font-size: 20px; font-weight: 700; color: #0f172a;">MeetHere</h1>
+                    </div>
+                    <p style="font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 14px;">Find the <strong style="color: #4f46e5;">fairest meeting spot</strong> between you and your friends. We'll calculate the best place, directions, costs, and even tell you when to leave.</p>
+                </div>
+
                 <form id="meetingForm" style="padding: 0 20px 20px;">
 
                     <!-- Postcode inputs -->
@@ -628,12 +646,13 @@
             const group = L.featureGroup(allMarkers);
             const isMobile = window.innerWidth <= 640;
             map.invalidateSize();
-            map.fitBounds(group.getBounds().pad(0.2), {
+            const panelHeight = isMobile ? Math.round(window.innerHeight * 0.55) : 20;
+            map.fitBounds(group.getBounds().pad(0.15), {
                 maxZoom: 14,
                 animate: true,
                 duration: 0.8,
                 paddingTopLeft: isMobile ? [20, 20] : [420, 20],
-                paddingBottomRight: isMobile ? [20, 20] : [20, 20],
+                paddingBottomRight: isMobile ? [20, panelHeight] : [20, 20],
             });
         }
 
