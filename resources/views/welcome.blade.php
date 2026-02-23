@@ -667,7 +667,6 @@
             casual:      { label: 'Drinks',        icon: '🍻', bg: '#fef3c7', desc: 'Pubs & bars',            subtitle: 'Your casual hangout' },
             date:        { label: 'Date night',    icon: '🌹', bg: '#ffe4e6', desc: 'Restaurants & cafes',     subtitle: 'Perfect for date night' },
             coffee:      { label: 'Coffee',        icon: '☕', bg: '#fef9c3', desc: 'Cafes & chill spots',     subtitle: 'Coffee & chat at' },
-            work:        { label: 'Work',          icon: '💼', bg: '#e0e7ff', desc: 'Quiet meeting spots',     subtitle: 'Work meeting at' },
             celebration: { label: 'Fun & games',   icon: '🎳', bg: '#f3e8ff', desc: 'Bowling, cinema & more',  subtitle: 'Entertainment pick' },
         };
         let selectedOccasion = 'casual';
