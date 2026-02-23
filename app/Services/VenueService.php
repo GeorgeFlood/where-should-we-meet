@@ -81,6 +81,12 @@ class VenueService
 
             if ($venue['type'] === 'entertainment') {
                 $venue['subcategory'] = $this->entertainmentSubcategory($tags);
+            } elseif ($venue['type'] === 'pub') {
+                $venue['subcategory'] = $this->pubSubcategory($tags);
+            } elseif ($venue['type'] === 'restaurant') {
+                $venue['subcategory'] = $this->restaurantSubcategory($tags);
+            } elseif ($venue['type'] === 'cafe') {
+                $venue['subcategory'] = $this->cafeSubcategory($tags);
             }
 
             if (!empty($tags['website']) || !empty($tags['contact:website'])) {
@@ -244,6 +250,87 @@ OVERPASS;
             $amenity === 'events_venue'      => 'Events Venue',
             default                          => 'Entertainment',
         };
+    }
+
+    /**
+     * Map pub OSM tags to a descriptive subcategory.
+     */
+    private function pubSubcategory(array $tags): string
+    {
+        $brand = strtolower($tags['brand'] ?? $tags['operator'] ?? '');
+        $name = strtolower($tags['name'] ?? '');
+
+        $knownBrands = [
+            'wetherspoon'  => 'Wetherspoons',
+            "young's"      => "Young's Pub",
+            'youngs'       => "Young's Pub",
+            "fuller's"     => "Fuller's Pub",
+            'fullers'      => "Fuller's Pub",
+            'greene king'  => 'Greene King',
+            "nicholson's"  => "Nicholson's Pub",
+            'nicholsons'   => "Nicholson's Pub",
+            'samuel smith' => "Sam Smith's Pub",
+            'craft union'  => 'Craft Union Pub',
+            'stonegate'    => 'Stonegate Pub',
+            'mitchells & butlers' => 'Mitchells & Butlers',
+        ];
+
+        foreach ($knownBrands as $key => $label) {
+            if (str_contains($brand, $key) || str_contains($name, $key)) {
+                return $label;
+            }
+        }
+
+        if (($tags['cocktails'] ?? '') === 'yes' || str_contains($name, 'cocktail')) return 'Cocktail Bar';
+        if (($tags['microbrewery'] ?? '') === 'yes' || str_contains($name, 'brewery')) return 'Microbrewery';
+        if (($tags['real_ale'] ?? '') === 'yes') return 'Real Ale Pub';
+        if (str_contains($name, 'sports') || str_contains($name, 'sport')) return 'Sports Bar';
+        if (str_contains($name, 'wine bar') || str_contains($name, 'wine')) return 'Wine Bar';
+        if (str_contains($name, 'bar') && !str_contains($name, 'pub')) return 'Bar';
+        if (!empty($tags['cuisine']) || ($tags['food'] ?? '') === 'yes') return 'Gastropub';
+
+        if (!empty($tags['brand'])) return $tags['brand'];
+
+        return 'Pub';
+    }
+
+    /**
+     * Map restaurant OSM tags to a descriptive subcategory.
+     */
+    private function restaurantSubcategory(array $tags): string
+    {
+        $brand = $tags['brand'] ?? '';
+        $cuisine = strtolower($tags['cuisine'] ?? '');
+
+        if (!empty($brand)) return $brand;
+        if (str_contains($cuisine, 'italian')) return 'Italian Restaurant';
+        if (str_contains($cuisine, 'indian')) return 'Indian Restaurant';
+        if (str_contains($cuisine, 'chinese')) return 'Chinese Restaurant';
+        if (str_contains($cuisine, 'japanese') || str_contains($cuisine, 'sushi')) return 'Japanese Restaurant';
+        if (str_contains($cuisine, 'thai')) return 'Thai Restaurant';
+        if (str_contains($cuisine, 'mexican')) return 'Mexican Restaurant';
+        if (str_contains($cuisine, 'turkish') || str_contains($cuisine, 'kebab')) return 'Turkish Restaurant';
+        if (str_contains($cuisine, 'burger')) return 'Burger Joint';
+        if (str_contains($cuisine, 'pizza')) return 'Pizzeria';
+        if (str_contains($cuisine, 'steak')) return 'Steakhouse';
+        if (str_contains($cuisine, 'seafood') || str_contains($cuisine, 'fish')) return 'Seafood Restaurant';
+
+        return 'Restaurant';
+    }
+
+    /**
+     * Map cafe OSM tags to a descriptive subcategory.
+     */
+    private function cafeSubcategory(array $tags): string
+    {
+        $brand = strtolower($tags['brand'] ?? '');
+        $name = strtolower($tags['name'] ?? '');
+
+        if (!empty($tags['brand'])) return $tags['brand'];
+        if (str_contains($name, 'bakery') || ($tags['shop'] ?? '') === 'bakery') return 'Bakery Cafe';
+        if (str_contains($name, 'tea')) return 'Tea Room';
+
+        return 'Cafe';
     }
 
     /**
