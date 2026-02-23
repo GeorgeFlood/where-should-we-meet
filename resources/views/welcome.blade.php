@@ -198,6 +198,35 @@
             font-weight: 600;
         }
 
+        .occasion-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .occasion-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            text-align: left;
+        }
+        .occasion-card:hover { border-color: #a5b4fc; background: #fafafe; }
+        .occasion-card.active { border-color: #6366f1; background: #eef2ff; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .occasion-card .oc-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .occasion-card .oc-label { font-size: 13px; font-weight: 600; color: #0f172a; }
+        .occasion-card .oc-desc { font-size: 11px; color: #94a3b8; line-height: 1.3; }
+        .occasion-card.active .oc-label { color: #4338ca; }
+
         .result-header {
             padding: 20px;
             color: white;
@@ -318,8 +347,13 @@
 
             <!-- Panel header -->
             <div style="padding: 20px 20px 0;">
-                <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">MeetHere</h1>
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Drop your postcodes, pick the vibe, and we'll find the fairest spot.</p>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <div style="width: 32px; height: 32px; background: #4f46e5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <h1 style="font-size: 20px; font-weight: 700; color: #0f172a;">MeetHere</h1>
+                </div>
+                <p style="font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 14px;">Find the <strong style="color: #4f46e5;">fairest meeting spot</strong> between you and your friends. We'll calculate the best place, directions, costs, and even tell you when to leave.</p>
             </div>
 
             <!-- Scrollable content -->
@@ -357,8 +391,8 @@
 
                     <!-- Occasion selector -->
                     <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">What's the vibe?</label>
-                        <div id="occasionSelector" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">What are you doing?</label>
+                        <div id="occasionSelector" class="occasion-grid"></div>
                         <input type="hidden" name="occasion" id="occasionInput" value="casual">
                     </div>
 
@@ -630,11 +664,11 @@
         //  Occasion config
         // ============================
         const occasions = {
-            casual:      { label: 'Casual',      icon: '🍻', desc: 'Pubs, bars & casual spots',            subtitle: 'Your casual hangout' },
-            date:        { label: 'Date night',   icon: '🌹', desc: 'Top restaurants & cocktail bars',     subtitle: 'Perfect for date night' },
-            coffee:      { label: 'Coffee',       icon: '☕', desc: 'Cafes & coffee shops',                 subtitle: 'Coffee & chat at' },
-            work:        { label: 'Work',         icon: '💼', desc: 'Quiet cafes & meeting spots',          subtitle: 'Work meeting at' },
-            celebration: { label: 'Entertainment', icon: '🎉', desc: 'Bowling, cinema, karaoke & arcades',    subtitle: 'Entertainment pick' },
+            casual:      { label: 'Drinks',        icon: '🍻', bg: '#fef3c7', desc: 'Pubs & bars',            subtitle: 'Your casual hangout' },
+            date:        { label: 'Date night',    icon: '🌹', bg: '#ffe4e6', desc: 'Restaurants & cafes',     subtitle: 'Perfect for date night' },
+            coffee:      { label: 'Coffee',        icon: '☕', bg: '#fef9c3', desc: 'Cafes & chill spots',     subtitle: 'Coffee & chat at' },
+            work:        { label: 'Work',          icon: '💼', bg: '#e0e7ff', desc: 'Quiet meeting spots',     subtitle: 'Work meeting at' },
+            celebration: { label: 'Fun & games',   icon: '🎳', bg: '#f3e8ff', desc: 'Bowling, cinema & more',  subtitle: 'Entertainment pick' },
         };
         let selectedOccasion = 'casual';
 
@@ -679,22 +713,26 @@
         const occasionSelector = document.getElementById('occasionSelector');
 
         Object.entries(occasions).forEach(([id, occ]) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.dataset.occasion = id;
-            btn.className = 'pill-btn' + (id === 'casual' ? ' active' : '');
-            btn.innerHTML = `${occ.icon}&nbsp; ${occ.label}`;
-            btn.title = occ.desc;
-            occasionSelector.appendChild(btn);
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.dataset.occasion = id;
+            card.className = 'occasion-card' + (id === 'casual' ? ' active' : '');
+            card.innerHTML = `
+                <div class="oc-icon" style="background: ${occ.bg};">${occ.icon}</div>
+                <div>
+                    <div class="oc-label">${occ.label}</div>
+                    <div class="oc-desc">${occ.desc}</div>
+                </div>`;
+            occasionSelector.appendChild(card);
         });
 
         occasionSelector.addEventListener('click', function (e) {
-            const btn = e.target.closest('.pill-btn');
-            if (!btn) return;
-            selectedOccasion = btn.dataset.occasion;
+            const card = e.target.closest('.occasion-card');
+            if (!card) return;
+            selectedOccasion = card.dataset.occasion;
             occasionInput.value = selectedOccasion;
-            occasionSelector.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            occasionSelector.querySelectorAll('.occasion-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
         });
 
         // ============================
