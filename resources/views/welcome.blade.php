@@ -51,14 +51,14 @@
         .panel > * { pointer-events: auto; }
 
         @media (max-width: 640px) {
-            #map { bottom: 35vh; }
+            #map { bottom: 50vh; }
             .panel {
                 top: auto;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 width: 100%;
-                max-height: 60vh;
+                max-height: 55vh;
                 padding-bottom: env(safe-area-inset-bottom, 0);
             }
         }
@@ -606,7 +606,15 @@
             const allMarkers = [...Object.values(personMarkers), ...venueMarkers];
             if (allMarkers.length === 0) return;
             const group = L.featureGroup(allMarkers);
-            map.fitBounds(group.getBounds().pad(0.15), { maxZoom: 14, animate: true, duration: 0.8 });
+            const isMobile = window.innerWidth <= 640;
+            map.invalidateSize();
+            map.fitBounds(group.getBounds().pad(0.2), {
+                maxZoom: 14,
+                animate: true,
+                duration: 0.8,
+                paddingTopLeft: isMobile ? [20, 20] : [420, 20],
+                paddingBottomRight: isMobile ? [20, 20] : [20, 20],
+            });
         }
 
         // ============================
