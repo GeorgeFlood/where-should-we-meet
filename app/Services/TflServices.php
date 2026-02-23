@@ -70,14 +70,30 @@ class TflServices
                 }
 
                 $data = $response->json();
-                $duration = collect($data['journeys'] ?? [])->pluck('duration')->min();
+                $journeys = collect($data['journeys'] ?? []);
+                $best = $journeys->sortBy('duration')->first();
 
-                if ($duration !== null) {
-                    $times[] = [
-                        'from'     => $postcode,
-                        'duration' => $duration,
-                    ];
+                if (!$best || !isset($best['duration'])) {
+                    continue;
                 }
+
+                $entry = [
+                    'from'     => $postcode,
+                    'duration' => $best['duration'],
+                    'legs'     => $this->extractLegs($best),
+                ];
+
+                $fare = $this->extractFare($best);
+                if ($fare !== null) {
+                    $entry['fare'] = $fare;
+                }
+
+                $disruptions = $this->extractDisruptions($best);
+                if (!empty($disruptions)) {
+                    $entry['disruptions'] = $disruptions;
+                }
+
+                $times[] = $entry;
             }
 
             // Only include venues where we got a time for every person
@@ -87,7 +103,18 @@ class TflServices
 
             $durations = array_column($times, 'duration');
 
-            $results[] = array_merge($venue, [
+            $fares = array_filter(array_map(fn($t) => $t['fare']['total_pence'] ?? null, $times));
+            $fareData = [];
+            if (count($fares) === count($times)) {
+                $totalFare = array_sum($fares);
+                $fairShare = (int) round($totalFare / count($fares));
+                $fareData = [
+                    'total_fare_pence' => $totalFare,
+                    'fair_share_pence' => $fairShare,
+                ];
+            }
+
+            $results[] = array_merge($venue, $fareData, [
                 'times'  => $times,
                 'max'    => max($durations),
                 'min'    => min($durations),
@@ -101,5 +128,109 @@ class TflServices
         });
 
         return $results;
+    }
+
+    /**
+     * Extract fare info (in pence) from a TfL journey.
+     * Returns cost in pence, or null if no fare data.
+     */
+    private function extractFare(array $journey): ?array
+    {
+        $fare = $journey['fare'] ?? null;
+        if (!$fare || !isset($fare['totalCost'])) {
+            return null;
+        }
+
+        $fares = $fare['fares'][0] ?? [];
+
+        return [
+            'total_pence' => (int) $fare['totalCost'],
+            'peak_pence'  => isset($fares['peak']) ? (int) $fares['peak'] : null,
+            'off_peak_pence' => isset($fares['offPeak']) ? (int) $fares['offPeak'] : null,
+            'zone_low'    => $fares['lowZone'] ?? null,
+            'zone_high'   => $fares['highZone'] ?? null,
+            'charge_level' => $fares['chargeLevel'] ?? null,
+        ];
+    }
+
+    /**
+     * Extract a compact list of legs from a TfL journey.
+     */
+    private function extractLegs(array $journey): array
+    {
+        $legs = [];
+
+        foreach ($journey['legs'] ?? [] as $leg) {
+            $routeOptions = $leg['routeOptions'] ?? [];
+            $lineName = $routeOptions[0]['name'] ?? ($routeOptions[0]['lineIdentifier']['name'] ?? null);
+
+            $legs[] = [
+                'summary'  => $leg['instruction']['summary'] ?? '',
+                'mode'     => $leg['mode']['name'] ?? 'Walk',
+                'line'     => $lineName,
+                'duration' => $leg['duration'] ?? 0,
+            ];
+        }
+
+        return $legs;
+    }
+
+    /**
+     * Extract unique disruption descriptions from all legs of a journey.
+     */
+    private function extractDisruptions(array $journey): array
+    {
+        $seen = [];
+        $disruptions = [];
+
+        foreach ($journey['legs'] ?? [] as $leg) {
+            foreach ($leg['disruptions'] ?? [] as $d) {
+                $desc = $d['description'] ?? '';
+                if ($desc && !isset($seen[$desc])) {
+                    $seen[$desc] = true;
+                    $disruptions[] = [
+                        'description' => $desc,
+                        'category'    => $d['category'] ?? 'Information',
+                    ];
+                }
+            }
+        }
+
+        return $disruptions;
+    }
+
+    /**
+     * Fetch current TfL line disruptions (non-"Good Service" statuses).
+     *
+     * Returns an array of [ line, status, reason ] for disrupted lines.
+     */
+    public function getLineDisruptions(): array
+    {
+        try {
+            $response = Http::timeout(10)
+                ->get("{$this->baseUrl}/line/mode/tube,overground,dlr,elizabeth-line/status");
+
+            if ($response->failed()) {
+                return [];
+            }
+
+            $disruptions = [];
+
+            foreach ($response->json() ?? [] as $line) {
+                foreach ($line['lineStatuses'] ?? [] as $status) {
+                    if (($status['statusSeverityDescription'] ?? '') !== 'Good Service') {
+                        $disruptions[] = [
+                            'line'   => $line['name'] ?? '',
+                            'status' => $status['statusSeverityDescription'] ?? '',
+                            'reason' => $status['reason'] ?? null,
+                        ];
+                    }
+                }
+            }
+
+            return $disruptions;
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 }

@@ -10,3 +10,6 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/calculate', [MeetingPointController::class, 'calculate']);
 Route::post('/find', [MeetingPointController::class, 'find']);
+Route::post('/share', [MeetingPointController::class, 'share']);
+Route::get('/plan/{id}/status', [MeetingPointController::class, 'getTrackerStatus']);
+Route::post('/plan/{id}/status', [MeetingPointController::class, 'updateTrackerStatus']);
