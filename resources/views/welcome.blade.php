@@ -533,15 +533,15 @@
 
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
+        "@@context": "https://schema.org",
+        "@@type": "WebApplication",
         "name": "MeetHere",
         "url": "{{ config('app.url') }}",
         "description": "Find the fairest meeting spot in London. Enter postcodes, pick the vibe, get TfL directions, fare splitting, and live arrival tracking.",
         "applicationCategory": "TravelApplication",
         "operatingSystem": "Any",
         "offers": {
-            "@type": "Offer",
+            "@@type": "Offer",
             "price": "0",
             "priceCurrency": "GBP"
         }
