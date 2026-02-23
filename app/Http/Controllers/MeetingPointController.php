@@ -91,7 +91,7 @@ class MeetingPointController extends Controller
         }
 
         // 6. Top results
-        $topResults = array_slice($ranked, 0, 3);
+        $topResults = array_slice($ranked, 0, 5);
 
         // 7. Collect line names used in journeys and fetch relevant disruptions
         $usedLines = [];
@@ -115,10 +115,10 @@ class MeetingPointController extends Controller
             }
         }
 
-        // 8. Return best result + up to 2 alternatives + alerts
+        // 8. Return best result + alternatives + alerts
         return response()->json([
             'best'         => $topResults[0],
-            'alternatives' => array_slice($topResults, 1, 2),
+            'alternatives' => array_slice($topResults, 1),
             'centroid'     => $centroid,
             'alerts'       => $alerts,
         ]);

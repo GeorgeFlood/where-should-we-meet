@@ -456,16 +456,21 @@
                         </div>
                     </div>
 
-                    <!-- Vote buttons -->
-                    <div style="padding: 10px 20px; display: flex; gap: 8px;">
-                        <button type="button" id="voteYesBtn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 12px; color: #059669; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s;">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Let's go!
-                        </button>
-                        <button type="button" id="voteNoBtn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 12px; color: #dc2626; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s;">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            Next option
-                        </button>
+                    <!-- Vote buttons + dots -->
+                    <div style="padding: 10px 20px;">
+                        <div id="voteDots" style="display: flex; justify-content: center; gap: 6px; margin-bottom: 10px;"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" id="voteNoBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Previous">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <button type="button" id="voteYesBtn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; background: #4f46e5; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; box-shadow: 0 2px 8px rgba(79,70,229,0.3);">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Let's go!
+                            </button>
+                            <button type="button" id="voteNextBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Next">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Venue info (website, cuisine, phone) -->
@@ -1360,24 +1365,44 @@
         // ============================
         const voteYesBtn = document.getElementById('voteYesBtn');
         const voteNoBtn = document.getElementById('voteNoBtn');
+        const voteNextBtn = document.getElementById('voteNextBtn');
+        const voteDots = document.getElementById('voteDots');
         const shareOverlay = document.getElementById('shareOverlay');
         const shareWhatsApp = document.getElementById('shareWhatsApp');
         const shareCopyBtn = document.getElementById('shareCopyBtn');
         const shareCopyFeedback = document.getElementById('shareCopyFeedback');
 
         function updateVoteCounter() {
-            const counter = allResults.length > 1 ? ` (${currentResultIndex + 1}/${allResults.length})` : '';
-            voteNoBtn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> Next option${counter}`;
+            voteDots.innerHTML = '';
+            if (allResults.length <= 1) return;
+            allResults.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.style.cssText = `width: ${i === currentResultIndex ? '20px' : '8px'}; height: 8px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.2s; background: ${i === currentResultIndex ? '#4f46e5' : '#cbd5e1'};`;
+                dot.addEventListener('click', () => navigateToResult(i));
+                voteDots.appendChild(dot);
+            });
+            voteNoBtn.style.opacity = allResults.length > 1 ? '1' : '0.3';
+            voteNextBtn.style.opacity = allResults.length > 1 ? '1' : '0.3';
+        }
+
+        function navigateToResult(index) {
+            if (allResults.length <= 1) return;
+            currentResultIndex = index;
+            shareOverlay.style.display = 'none';
+            renderVenueResult(allResults[currentResultIndex], null);
+            updateVoteCounter();
+            fitAllMarkers();
         }
 
         voteNoBtn.addEventListener('click', function () {
             if (allResults.length <= 1) return;
-            currentResultIndex = (currentResultIndex + 1) % allResults.length;
-            const nextVenue = allResults[currentResultIndex];
-            shareOverlay.style.display = 'none';
-            renderVenueResult(nextVenue, null);
-            updateVoteCounter();
-            fitAllMarkers();
+            navigateToResult((currentResultIndex - 1 + allResults.length) % allResults.length);
+        });
+
+        voteNextBtn.addEventListener('click', function () {
+            if (allResults.length <= 1) return;
+            navigateToResult((currentResultIndex + 1) % allResults.length);
         });
 
         voteYesBtn.addEventListener('click', async function () {
@@ -1415,6 +1440,7 @@
                 showError('Could not create share link. Please try again.');
             } finally {
                 voteYesBtn.disabled = false;
+                voteYesBtn.style.opacity = '1';
                 voteYesBtn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Let\'s go!';
             }
         });
