@@ -291,7 +291,7 @@ OVERPASS;
 
         if (!empty($tags['brand'])) return $tags['brand'];
 
-        return 'Pub';
+        return 'Indie Pub';
     }
 
     /**

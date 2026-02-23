@@ -1244,16 +1244,15 @@
                 const item = document.createElement('div');
                 item.className = 'journey-item';
 
-                const fareHtml = t.fare ? `<span style="font-size: 11px; font-weight: 600; color: #059669; background: #ecfdf5; padding: 2px 7px; border-radius: 8px; flex-shrink: 0;">£${(t.fare.total_pence / 100).toFixed(2)}</span>` : '';
+                const fareTag = t.fare ? `£${(t.fare.total_pence / 100).toFixed(2)}` : '';
 
                 const rowHtml = `
                     <div class="journey-row" style="padding: 6px 0;">
-                        <span style="font-size: 13px; font-weight: 500; color: #475569; width: 80px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.from}</span>
-                        <div class="journey-bar-bg">
+                        <span style="font-size: 13px; font-weight: 500; color: #475569; min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px;">${t.from}</span>
+                        <div class="journey-bar-bg" style="flex: 1; min-width: 30px;">
                             <div class="journey-bar-fill" style="width: ${pct}%; background: ${theme.barColor};"></div>
                         </div>
-                        <span style="font-size: 13px; font-weight: 600; color: #1e293b; width: 55px; text-align: right; flex-shrink: 0;">${formatDuration(t.duration)}</span>
-                        ${fareHtml}
+                        <span style="font-size: 13px; font-weight: 600; color: #1e293b; flex-shrink: 0; white-space: nowrap;">${formatDuration(t.duration)}${fareTag ? ` <span style="font-size: 11px; font-weight: 600; color: #059669;">· ${fareTag}</span>` : ''}</span>
                         ${hasDisruptions ? '<span style="font-size: 14px; flex-shrink: 0;" title="Disruptions on route">⚠️</span>' : ''}
                         ${hasLegs ? '<svg class="chevron-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>' : ''}
                     </div>`;
