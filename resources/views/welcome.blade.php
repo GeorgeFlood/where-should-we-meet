@@ -15,19 +15,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#4f46e5">
 
-    <title>MeetHere — Find the fairest meeting spot in London</title>
+    <title>Midway — Find the fairest meeting spot in London</title>
     <meta name="description" content="Enter your postcodes, pick the vibe, and we'll find the fairest meeting spot in London with TfL directions, fare splitting, and live arrival tracking.">
     <meta name="keywords" content="meeting point, London, TfL, fair meeting, postcode, where to meet, travel planner">
     <link rel="canonical" href="{{ config('app.url') }}">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ config('app.url') }}">
-    <meta property="og:title" content="MeetHere — Find the fairest meeting spot in London">
+    <meta property="og:title" content="Midway — Find the fairest meeting spot in London">
     <meta property="og:description" content="Drop your postcodes, pick the vibe, and we'll find the perfect spot in the middle. With TfL directions, fare splitting, and live tracking.">
     <meta property="og:image" content="{{ config('app.url') }}/og-image.png">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MeetHere — Find the fairest meeting spot in London">
+    <meta name="twitter:title" content="Midway — Find the fairest meeting spot in London">
     <meta name="twitter:description" content="Drop your postcodes, pick the vibe, and we'll find the perfect spot in the middle.">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -382,11 +382,10 @@
             <div class="panel-scroll">
                 <!-- Panel header (scrolls with content) -->
                 <div id="panelIntro" style="padding: 20px 20px 0;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                        <div style="width: 32px; height: 32px; background: #4f46e5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; text-align: center;">
+                        <div style="width: 100%; height: 62px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ asset('midwayLogo.png') }}" alt="Midway Logo" width='220px'>
                         </div>
-                        <h1 style="font-size: 20px; font-weight: 700; color: #0f172a;">MeetHere</h1>
                     </div>
                     <p style="font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 14px;">Find the <strong style="color: #4f46e5;">fairest meeting spot</strong> between you and your friends, anywhere in <strong>London</strong>. We'll sort the place, TfL directions, costs, and when to leave.</p>
                 </div>
@@ -584,7 +583,7 @@
 
             <!-- Footer -->
             <div style="padding: 10px 20px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #f1f5f9;">
-                MeetHere &middot; Powered by TfL &amp; OpenStreetMap
+            Midway &middot; Powered by TfL &amp; OpenStreetMap
             </div>
         </div>
     </div>
@@ -593,7 +592,7 @@
     {
         "@@context": "https://schema.org",
         "@@type": "WebApplication",
-        "name": "MeetHere",
+        "name": "Midway",
         "url": "{{ config('app.url') }}",
         "description": "Find the fairest meeting spot in London. Enter postcodes, pick the vibe, get TfL directions, fare splitting, and live arrival tracking.",
         "applicationCategory": "TravelApplication",
@@ -1471,12 +1470,10 @@
                 };
 
                 shareEmailBtn.onclick = () => {
-                         const email = '';
+                        const email = '';
                         const emailSubject = `Let's meet at ${currentVenue.name}!`;
                         const subjectBody = `Let's start with this link:\n\n${shareUrl}`;
-
                         const mailToLink = `mailto:${email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(subjectBody)}`;
-
                         window.location.href = mailToLink;
                 }
 
@@ -1586,7 +1583,7 @@
                 if (!data.has_reviews) return;
                 inner.style.background = data.color + '18';
                 inner.style.color = data.color;
-                inner.innerHTML = `<span>⭐</span> <span>${data.label}</span> <span style="opacity: 0.7; font-weight: 400;">(${data.total} MeetHere ${data.total === 1 ? 'review' : 'reviews'})</span>`;
+                inner.innerHTML = `<span>⭐</span> <span>${data.label}</span> <span style="opacity: 0.7; font-weight: 400;">(${data.total} Midway ${data.total === 1 ? 'review' : 'reviews'})</span>`;
                 badge.style.display = 'block';
             } catch (_) {}
         }
