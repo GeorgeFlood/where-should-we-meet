@@ -120,7 +120,9 @@ class VenueService
             usort($venues, fn($a, $b) => $a['distance'] <=> $b['distance']);
         }
 
-        return array_slice($venues, 0, $limit);
+        $venues = $this->diversify($venues, $type, $limit);
+
+        return $venues;
     }
 
     /**
@@ -331,6 +333,68 @@ OVERPASS;
         if (str_contains($name, 'tea')) return 'Tea Room';
 
         return 'Cafe';
+    }
+
+    /**
+     * Diversify results so we don't return 10 of the same subcategory.
+     * Round-robins through groups defined by subcategory (entertainment/pub)
+     * or cuisine (restaurant/cafe).
+     */
+    private function diversify(array $venues, string $type, int $limit): array
+    {
+        if (count($venues) <= $limit) {
+            return $venues;
+        }
+
+        $groups = [];
+        foreach ($venues as $v) {
+            $key = $this->diversityKey($v, $type);
+            $groups[$key][] = $v;
+        }
+
+        if (count($groups) <= 1) {
+            return array_slice($venues, 0, $limit);
+        }
+
+        $result = [];
+        $pointers = array_fill_keys(array_keys($groups), 0);
+
+        while (count($result) < $limit) {
+            $added = false;
+            foreach ($groups as $key => &$items) {
+                if ($pointers[$key] < count($items) && count($result) < $limit) {
+                    $result[] = $items[$pointers[$key]];
+                    $pointers[$key]++;
+                    $added = true;
+                }
+            }
+            unset($items);
+            if (!$added) break;
+        }
+
+        return $result;
+    }
+
+    private function diversityKey(array $venue, string $type): string
+    {
+        if ($type === 'entertainment') {
+            return $venue['subcategory'] ?? 'other';
+        }
+
+        if (in_array($type, ['restaurant', 'cafe'])) {
+            $cuisine = strtolower($venue['cuisine'] ?? '');
+            if ($cuisine) {
+                $first = explode(',', str_replace(';', ',', $cuisine))[0];
+                return trim($first);
+            }
+            return $venue['subcategory'] ?? $venue['type'] ?? 'other';
+        }
+
+        if ($type === 'pub') {
+            return $venue['subcategory'] ?? 'Indie Pub';
+        }
+
+        return 'default';
     }
 
     /**

@@ -70,9 +70,9 @@ class MeetingPointController extends Controller
                 $centroid['lng'],
                 $searchType,
                 $radius,
-                limit: 10,
+                limit: 15,
             );
-            if (count($venues) >= 3) break;
+            if (count($venues) >= 5) break;
         }
 
         if (empty($venues)) {

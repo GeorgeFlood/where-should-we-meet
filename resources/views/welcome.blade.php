@@ -533,10 +533,10 @@
 
                     <!-- Arrival planner -->
                     <div style="padding: 12px 20px; border-top: 1px solid #f1f5f9;">
-                        <h3 style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">When should everyone leave?</h3>
-                        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">Set a target arrival time and we'll work out each person's departure time.</p>
+                        <h3 style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Departure times</h3>
+                        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">When do you all need to be there? We'll tell each person when to leave.</p>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                            <label for="arrivalTime" style="font-size: 13px; font-weight: 500; color: #475569; white-space: nowrap;">Arrive by</label>
+                            <label for="arrivalTime" style="font-size: 13px; font-weight: 500; color: #475569; white-space: nowrap;">Meet at</label>
                             <input type="time" id="arrivalTime" class="input-field" style="flex: 1; padding: 8px 12px; font-weight: 600;">
                             <button type="button" id="arrivalNowBtn" class="pill-btn" style="font-size: 12px; padding: 8px 12px;">Now + 1h</button>
                         </div>
