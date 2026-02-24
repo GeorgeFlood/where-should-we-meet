@@ -82,22 +82,20 @@
         .departure-input-row input:focus { border-color: #a5b4fc; box-shadow: 0 0 0 3px rgba(165,180,252,0.3); }
         .departure-results { display: flex; flex-direction: column; gap: 8px; padding: 0 8px; }
 
-        .tracker-section { margin: 8px 16px; border-radius: 14px; overflow: hidden; }
-        .tracker-header { display: flex; align-items: center; gap: 8px; padding: 16px 16px 12px; background: linear-gradient(135deg, #eef2ff, #e0e7ff); }
-        .tracker-header h3 { font-size: 12px; font-weight: 600; color: #4338ca; text-transform: uppercase; letter-spacing: 0.05em; }
+        .tracker-section { margin: 8px 16px; border-radius: 14px; overflow: hidden; background: #f8fafc; }
+        .tracker-header { display: flex; align-items: center; gap: 8px; padding: 14px 16px 10px; }
+        .tracker-header h3 { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
 
         .tracker-person {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 16px;
-            background: white;
-            border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px;
             transition: background 0.3s;
         }
         .tracker-person:last-child { border-bottom: none; }
-        .tracker-person.is-me { background: #fefce8; }
+        .tracker-person.is-me { background: #eef2ff; border-radius: 10px; margin: 0 4px; }
 
         .tracker-dot {
-            width: 12px; height: 12px; border-radius: 50%;
+            width: 10px; height: 10px; border-radius: 50%;
             flex-shrink: 0; transition: all 0.3s;
         }
         .tracker-dot.pending { background: #d1d5db; }
@@ -105,15 +103,11 @@
         .tracker-dot.arrived { background: #22c55e; }
         @keyframes tracker-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } }
 
-        .tracker-postcode { font-size: 14px; font-weight: 600; color: #0f172a; }
+        .tracker-postcode { font-size: 13px; font-weight: 600; color: #0f172a; }
         .tracker-info { flex: 1; min-width: 0; }
         .tracker-distance { font-size: 11px; font-weight: 500; color: #6366f1; margin-top: 1px; }
         .tracker-distance.close { color: #16a34a; font-weight: 600; }
         .tracker-status-col { text-align: right; flex-shrink: 0; }
-        .tracker-status-label { font-size: 12px; font-weight: 500; display: block; }
-        .tracker-status-label.pending { color: #9ca3af; }
-        .tracker-status-label.on_my_way { color: #d97706; }
-        .tracker-status-label.arrived { color: #16a34a; }
 
         .person-map-marker {
             width: 32px; height: 32px; border-radius: 50%;
@@ -125,29 +119,27 @@
         }
         .person-map-marker.arrived-marker { background: #22c55e; }
 
-        .tracker-identity { padding: 16px; background: white; text-align: center; }
+        .tracker-identity { padding: 14px 16px; text-align: center; }
         .identity-btn {
-            display: block; width: 100%; padding: 12px 16px;
-            margin-bottom: 8px; border: 1.5px solid #e2e8f0;
-            border-radius: 12px; background: #f8fafc;
-            font-size: 14px; font-weight: 600; font-family: inherit;
+            display: block; width: 100%; padding: 10px 14px;
+            margin-bottom: 6px; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; background: white;
+            font-size: 13px; font-weight: 600; font-family: inherit;
             color: #334155; cursor: pointer; transition: all 0.15s;
         }
         .identity-btn:hover { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
 
         .tracker-action {
-            display: none; padding: 12px 16px; background: white; text-align: center;
+            display: none; padding: 10px 16px; text-align: center;
         }
         .action-btn {
-            width: 100%; padding: 14px;
-            border: none; border-radius: 12px;
-            font-size: 14px; font-weight: 600; font-family: inherit;
+            width: 100%; padding: 12px;
+            border: none; border-radius: 10px;
+            font-size: 13px; font-weight: 600; font-family: inherit;
             cursor: pointer; transition: all 0.2s;
         }
         .action-btn.on-my-way { background: #f59e0b; color: white; }
-        .action-btn.on-my-way:hover { background: #d97706; }
         .action-btn.arrived { background: #22c55e; color: white; }
-        .action-btn.arrived:hover { background: #16a34a; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .action-btn.done { background: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0; cursor: default; }
 
@@ -163,6 +155,26 @@
             animation: celebration-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes celebration-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .rating-prompt {
+            margin: 12px 16px; padding: 20px; border-radius: 14px;
+            background: linear-gradient(135deg, #fefce8, #fef9c3);
+            border: 1.5px solid #fde68a; text-align: center;
+        }
+        .rating-btn {
+            padding: 10px 20px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+            background: white; font-size: 14px; cursor: pointer; font-family: inherit;
+            font-weight: 600; transition: all 0.15s; margin: 0 4px;
+        }
+        .rating-btn:hover { transform: scale(1.05); }
+        .rating-btn.positive:hover { border-color: #22c55e; background: #f0fdf4; }
+        .rating-btn.negative:hover { border-color: #ef4444; background: #fef2f2; }
+
+        .review-badge-plan {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; margin: 8px 16px;
+        }
     </style>
 </head>
 <body>
@@ -240,18 +252,20 @@
             <a href="https://www.google.com/maps/search/?api=1&query={{ $venue['lat'] }},{{ $venue['lng'] }}" target="_blank">Open in Google Maps</a>
         </div>
 
+        <!-- Review badge (loaded by JS) -->
+        <div id="reviewBadgePlan" style="display: none;"></div>
+
         @if(!empty($venue['times']))
         <!-- Live Tracker -->
         <div class="tracker-section" id="trackerSection">
             <div class="tracker-header">
-                <span style="font-size: 16px;">📡</span>
-                <h3>Live tracker</h3>
-                <span id="trackerLiveIndicator" style="margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: tracker-pulse 2s ease-in-out infinite;"></span>
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: tracker-pulse 2s ease-in-out infinite;"></span>
+                <h3>Who's where?</h3>
             </div>
 
-            <!-- Identity picker (shown first) -->
+            <!-- Identity picker -->
             <div class="tracker-identity" id="identityPicker">
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Who are you?</p>
+                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">Tap your postcode to start tracking</p>
                 @foreach($venue['times'] as $i => $t)
                 <button class="identity-btn" data-person="{{ $i }}" data-postcode="{{ $t['from'] }}">
                     {{ $t['from'] }}
@@ -259,7 +273,7 @@
                 @endforeach
             </div>
 
-            <!-- Status list (shown after identity picked) -->
+            <!-- Status list -->
             <div id="trackerList" style="display: none;">
                 @foreach($venue['times'] as $i => $t)
                 <div class="tracker-person" data-person="{{ $i }}">
@@ -269,18 +283,30 @@
                         <div class="tracker-distance" data-distance="{{ $i }}" style="display: none;"></div>
                     </div>
                     <div class="tracker-status-col">
-                        <span class="tracker-status-label pending" data-label="{{ $i }}">Waiting...</span>
+                        <span style="font-size: 12px; font-weight: 500; color: #94a3b8;" data-dist-label="{{ $i }}">—</span>
                     </div>
                 </div>
                 @endforeach
             </div>
 
-            <!-- Action button (shown after identity picked) -->
+            <!-- Action button -->
             <div class="tracker-action" id="trackerAction">
                 <button class="action-btn on-my-way" id="trackerActionBtn">
                     🚶 I'm on my way!
                 </button>
             </div>
+        </div>
+
+        <!-- Rating prompt (shown 24h+ after plan creation) -->
+        <div class="rating-prompt" id="ratingPrompt" style="display: none;">
+            <p style="font-size: 16px; margin-bottom: 6px;">⭐</p>
+            <p style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 4px;">How was {{ $venue['name'] }}?</p>
+            <p style="font-size: 12px; color: #a16207; margin-bottom: 14px;">Your rating helps others on MeetHere</p>
+            <div>
+                <button class="rating-btn positive" id="ratePositive">👍 Good</button>
+                <button class="rating-btn negative" id="rateNegative">👎 Not great</button>
+            </div>
+            <p id="ratingThanks" style="display: none; font-size: 13px; color: #16a34a; font-weight: 600; margin-top: 10px;">Thanks for your review!</p>
         </div>
 
         <!-- Celebration overlay -->
@@ -407,7 +433,10 @@
         const lng = {{ $venue['lng'] }};
         const planId = @json($planId);
         const venueName = @json($venue['name']);
+        const venueLat = {{ $venue['lat'] }};
+        const venueLng = {{ $venue['lng'] }};
         const peopleCount = {{ count($venue['times'] ?? []) }};
+        const planCreated = @json($plan['created'] ?? null);
 
         const map = L.map('planMap', { zoomControl: false, attributionControl: false }).setView([lat, lng], 15);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
@@ -442,6 +471,55 @@
         }
 
         // ============================
+        //  Review badge
+        // ============================
+        (async function loadReviewBadge() {
+            try {
+                const params = new URLSearchParams({ name: venueName, lat: venueLat, lng: venueLng });
+                const resp = await fetch('/api/venue-reviews?' + params);
+                const data = await resp.json();
+                if (!data.has_reviews) return;
+                const el = document.getElementById('reviewBadgePlan');
+                el.innerHTML = '<div class="review-badge-plan" style="background:' + data.color + '18;color:' + data.color + ';">⭐ ' + data.label + ' <span style="opacity:0.7;font-weight:400;">(' + data.total + ' MeetHere ' + (data.total === 1 ? 'review' : 'reviews') + ')</span></div>';
+                el.style.display = 'block';
+            } catch (_) {}
+        })();
+
+        // ============================
+        //  24h Rating prompt
+        // ============================
+        const ratingStorageKey = 'rated_' + planId;
+        if (planCreated && !localStorage.getItem(ratingStorageKey)) {
+            const ageMs = Date.now() - new Date(planCreated).getTime();
+            const showDelay = Math.max(0, 24 * 60 * 60 * 1000 - ageMs);
+            if (ageMs >= 24 * 60 * 60 * 1000) {
+                document.getElementById('ratingPrompt').style.display = 'block';
+            } else {
+                setTimeout(() => {
+                    document.getElementById('ratingPrompt').style.display = 'block';
+                }, showDelay);
+            }
+        }
+
+        document.getElementById('ratePositive')?.addEventListener('click', () => submitRating('positive'));
+        document.getElementById('rateNegative')?.addEventListener('click', () => submitRating('negative'));
+
+        async function submitRating(rating) {
+            try {
+                await fetch('/api/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ venue_name: venueName, venue_lat: venueLat, venue_lng: venueLng, rating, plan_id: planId }),
+                });
+                localStorage.setItem(ratingStorageKey, '1');
+                document.getElementById('ratePositive').style.display = 'none';
+                document.getElementById('rateNegative').style.display = 'none';
+                document.getElementById('ratingThanks').style.display = 'block';
+                setTimeout(() => { document.getElementById('ratingPrompt').style.display = 'none'; }, 2000);
+            } catch (_) {}
+        }
+
+        // ============================
         //  Live Tracker
         // ============================
         const identityPicker = document.getElementById('identityPicker');
@@ -457,9 +535,9 @@
         let pollInterval = null;
         let celebrationShown = false;
         let geoWatchId = null;
-        let locationSendTimer = null;
         let lastSentLocation = null;
         const personMarkers = {};
+        const AUTO_ARRIVE_METRES = 50;
 
         const personColors = ['#4f46e5', '#e11d48', '#0891b2', '#7c3aed', '#c2410c'];
 
@@ -472,26 +550,27 @@
         }
 
         function formatDistance(metres) {
-            if (metres < 150) return 'Nearly there!';
+            if (metres < 50) return 'Here!';
+            if (metres < 200) return 'Nearly there';
             const miles = metres / 1609.34;
             if (miles < 0.3) return Math.round(metres) + 'm away';
-            return miles.toFixed(1) + ' miles away';
+            return miles.toFixed(1) + ' mi away';
         }
 
         function createPersonMapIcon(index) {
             const color = personColors[index % personColors.length];
             return L.divIcon({
                 className: '',
-                html: `<div class="person-map-marker" style="background:${color};">${index + 1}</div>`,
+                html: '<div class="person-map-marker" style="background:' + color + ';">' + (index + 1) + '</div>',
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
             });
         }
 
-        function createArrivedMapIcon(index) {
+        function createArrivedMapIcon() {
             return L.divIcon({
                 className: '',
-                html: `<div class="person-map-marker arrived-marker">\u2713</div>`,
+                html: '<div class="person-map-marker arrived-marker">\u2713</div>',
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
             });
@@ -518,7 +597,7 @@
             if (trackerList) trackerList.style.display = 'block';
             if (trackerAction) trackerAction.style.display = 'block';
 
-            const myRow = trackerList?.querySelector(`.tracker-person[data-person="${myPersonIndex}"]`);
+            const myRow = trackerList?.querySelector('.tracker-person[data-person="' + myPersonIndex + '"]');
             if (myRow) {
                 myRow.classList.add('is-me');
                 const postcode = myRow.querySelector('.tracker-postcode');
@@ -530,11 +609,7 @@
             }
 
             await pollStatuses();
-
-            if (myCurrentStatus === 'on_my_way') {
-                startLocationTracking();
-            }
-
+            if (myCurrentStatus === 'on_my_way') startLocationTracking();
             pollInterval = setInterval(pollStatuses, 5000);
         }
 
@@ -552,7 +627,11 @@
                     const dist = haversineDistance(myLat, myLng, lat, lng);
 
                     updateMyMarker(myLat, myLng);
-                    updateMyDistance(dist);
+                    updateDistLabel(myPersonIndex, dist);
+
+                    if (dist <= AUTO_ARRIVE_METRES && myCurrentStatus === 'on_my_way') {
+                        autoArrive(myLat, myLng);
+                    }
 
                     const now = Date.now();
                     if (!lastSentLocation || now - lastSentLocation > 15000) {
@@ -563,6 +642,14 @@
                 function () {},
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
             );
+        }
+
+        async function autoArrive(myLat, myLng) {
+            myCurrentStatus = 'arrived';
+            updateActionButton();
+            stopLocationTracking();
+            await sendLocationUpdate(lat, lng, 0);
+            pollStatuses();
         }
 
         function stopLocationTracking() {
@@ -584,25 +671,30 @@
             }
         }
 
-        function updateMyDistance(metres) {
-            const el = document.querySelector(`[data-distance="${myPersonIndex}"]`);
-            if (el) {
-                el.textContent = formatDistance(metres);
-                el.style.display = 'block';
-                el.className = 'tracker-distance' + (metres < 200 ? ' close' : '');
+        function updateDistLabel(personIndex, metres) {
+            const distEl = document.querySelector('[data-distance="' + personIndex + '"]');
+            const labelEl = document.querySelector('[data-dist-label="' + personIndex + '"]');
+            if (distEl) {
+                distEl.textContent = formatDistance(metres);
+                distEl.style.display = 'block';
+                distEl.className = 'tracker-distance' + (metres < 200 ? ' close' : '');
+            }
+            if (labelEl) {
+                labelEl.textContent = formatDistance(metres);
+                labelEl.style.color = metres < 200 ? '#16a34a' : '#6366f1';
+                labelEl.style.fontWeight = metres < 200 ? '600' : '500';
             }
         }
 
         async function sendLocationUpdate(myLat, myLng, dist) {
             try {
-                await fetch(`/api/plan/${planId}/status`, {
+                await fetch('/api/plan/' + planId + '/status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
                         person: myPersonIndex,
                         status: myCurrentStatus,
-                        lat: myLat,
-                        lng: myLng,
+                        lat: myLat, lng: myLng,
                         distance_metres: Math.round(dist),
                     }),
                 });
@@ -622,7 +714,7 @@
 
         async function pollStatuses() {
             try {
-                const resp = await fetch(`/api/plan/${planId}/status`);
+                const resp = await fetch('/api/plan/' + planId + '/status');
                 if (!resp.ok) return;
                 const data = await resp.json();
 
@@ -630,61 +722,37 @@
                 let hasAnyTracking = false;
 
                 (data.statuses || []).forEach(s => {
-                    const dot = document.querySelector(`[data-dot="${s.person}"]`);
-                    const label = document.querySelector(`[data-label="${s.person}"]`);
-                    const distEl = document.querySelector(`[data-distance="${s.person}"]`);
+                    const dot = document.querySelector('[data-dot="' + s.person + '"]');
+                    const labelEl = document.querySelector('[data-dist-label="' + s.person + '"]');
 
-                    if (dot) dot.className = `tracker-dot ${s.status}`;
+                    if (dot) dot.className = 'tracker-dot ' + s.status;
 
                     if (s.person === myPersonIndex) {
                         myCurrentStatus = s.status;
                         updateActionButton();
                     }
 
-                    // Distance + map marker for other people
                     if (s.person !== myPersonIndex) {
                         if (s.status === 'on_my_way' && s.distance_metres != null) {
-                            if (label) {
-                                label.className = `tracker-status-label on_my_way`;
-                                label.textContent = 'On my way';
-                            }
-                            if (distEl) {
-                                distEl.textContent = formatDistance(s.distance_metres);
-                                distEl.style.display = 'block';
-                                distEl.className = 'tracker-distance' + (s.distance_metres < 200 ? ' close' : '');
-                            }
-
+                            updateDistLabel(s.person, s.distance_metres);
                             if (s.lat != null && s.lng != null) {
                                 hasAnyTracking = true;
                                 if (!personMarkers[s.person]) {
-                                    personMarkers[s.person] = L.marker([s.lat, s.lng], {
-                                        icon: createPersonMapIcon(s.person),
-                                    }).addTo(map);
+                                    personMarkers[s.person] = L.marker([s.lat, s.lng], { icon: createPersonMapIcon(s.person) }).addTo(map);
                                 } else {
                                     personMarkers[s.person].setLatLng([s.lat, s.lng]);
-                                    personMarkers[s.person].setIcon(createPersonMapIcon(s.person));
                                 }
                             }
                         } else if (s.status === 'arrived') {
-                            if (label) {
-                                label.className = 'tracker-status-label arrived';
-                                label.textContent = 'Arrived!';
-                            }
-                            if (distEl) {
-                                distEl.textContent = 'At the venue';
-                                distEl.style.display = 'block';
-                                distEl.className = 'tracker-distance close';
-                            }
+                            if (labelEl) { labelEl.textContent = 'Arrived!'; labelEl.style.color = '#16a34a'; labelEl.style.fontWeight = '600'; }
+                            const distEl = document.querySelector('[data-distance="' + s.person + '"]');
+                            if (distEl) { distEl.textContent = 'Here!'; distEl.style.display = 'block'; distEl.className = 'tracker-distance close'; }
                             if (personMarkers[s.person]) {
                                 personMarkers[s.person].setLatLng([lat, lng]);
-                                personMarkers[s.person].setIcon(createArrivedMapIcon(s.person));
+                                personMarkers[s.person].setIcon(createArrivedMapIcon());
                             }
                         } else {
-                            if (label) {
-                                label.className = 'tracker-status-label pending';
-                                label.textContent = 'Waiting...';
-                            }
-                            if (distEl) distEl.style.display = 'none';
+                            if (labelEl) { labelEl.textContent = '—'; labelEl.style.color = '#94a3b8'; }
                         }
                     }
 
@@ -703,9 +771,8 @@
                     if (pollInterval) clearInterval(pollInterval);
 
                     if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification("You've all arrived at " + venueName + " \uD83C\uDF89", {
+                        new Notification("You've all arrived at " + venueName + " 🎉", {
                             body: 'Have fun!',
-                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎉</text></svg>',
                         });
                     }
                 }
@@ -714,18 +781,17 @@
 
         function updateActionButton() {
             if (!trackerActionBtn) return;
-
             if (myCurrentStatus === 'pending') {
                 trackerActionBtn.className = 'action-btn on-my-way';
-                trackerActionBtn.innerHTML = '\uD83D\uDEB6 I\'m on my way!';
+                trackerActionBtn.innerHTML = '🚶 I\'m on my way!';
                 trackerActionBtn.disabled = false;
             } else if (myCurrentStatus === 'on_my_way') {
                 trackerActionBtn.className = 'action-btn arrived';
-                trackerActionBtn.innerHTML = '\uD83D\uDCCD I\'ve arrived!';
+                trackerActionBtn.innerHTML = '📍 I\'ve arrived!';
                 trackerActionBtn.disabled = false;
             } else {
                 trackerActionBtn.className = 'action-btn done';
-                trackerActionBtn.innerHTML = '\u2705 You\'re here!';
+                trackerActionBtn.innerHTML = '✅ You\'re here!';
                 trackerActionBtn.disabled = true;
                 stopLocationTracking();
             }
@@ -734,32 +800,23 @@
         if (trackerActionBtn) {
             trackerActionBtn.addEventListener('click', async function () {
                 if (myPersonIndex === null) return;
-
                 let newStatus;
                 if (myCurrentStatus === 'pending') newStatus = 'on_my_way';
                 else if (myCurrentStatus === 'on_my_way') newStatus = 'arrived';
                 else return;
 
                 trackerActionBtn.disabled = true;
-
                 try {
-                    const resp = await fetch(`/api/plan/${planId}/status`, {
+                    const resp = await fetch('/api/plan/' + planId + '/status', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify({ person: myPersonIndex, status: newStatus }),
                     });
-
                     if (resp.ok) {
                         myCurrentStatus = newStatus;
                         updateActionButton();
-
-                        if (newStatus === 'on_my_way') {
-                            startLocationTracking();
-                        } else if (newStatus === 'arrived') {
-                            stopLocationTracking();
-                            sendLocationUpdate(lat, lng, 0);
-                        }
-
+                        if (newStatus === 'on_my_way') startLocationTracking();
+                        else if (newStatus === 'arrived') { stopLocationTracking(); sendLocationUpdate(lat, lng, 0); }
                         pollStatuses();
                     }
                 } catch (_) {

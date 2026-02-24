@@ -13,3 +13,5 @@ Route::post('/find', [MeetingPointController::class, 'find']);
 Route::post('/share', [MeetingPointController::class, 'share']);
 Route::get('/plan/{id}/status', [MeetingPointController::class, 'getTrackerStatus']);
 Route::post('/plan/{id}/status', [MeetingPointController::class, 'updateTrackerStatus']);
+Route::post('/review', [MeetingPointController::class, 'submitReview']);
+Route::get('/venue-reviews', [MeetingPointController::class, 'getVenueReviews']);

@@ -388,7 +388,7 @@
                         </div>
                         <h1 style="font-size: 20px; font-weight: 700; color: #0f172a;">MeetHere</h1>
                     </div>
-                    <p style="font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 14px;">Find the <strong style="color: #4f46e5;">fairest meeting spot</strong> between you and your friends. We'll calculate the best place, directions, costs, and even tell you when to leave.</p>
+                    <p style="font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 14px;">Find the <strong style="color: #4f46e5;">fairest meeting spot</strong> between you and your friends, anywhere in <strong>London</strong>. We'll sort the place, TfL directions, costs, and when to leave.</p>
                 </div>
 
                 <form id="meetingForm" style="padding: 0 20px 20px;">
@@ -447,7 +447,15 @@
                 <!-- Results -->
                 <div id="resultsSection" style="display: none; padding-bottom: 20px;">
 
-                    <div style="height: 1px; background: #e2e8f0; margin: 0 20px 16px;"></div>
+                    <!-- Back to browsing (hidden until confirmed) -->
+                    <div id="backToBrowsing" style="display: none; padding: 10px 20px 0;">
+                        <button type="button" id="backToBrowsingBtn" style="background: none; border: none; color: #6366f1; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; padding: 0; display: flex; align-items: center; gap: 4px;">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            Pick a different spot
+                        </button>
+                    </div>
+
+                    <div id="browsingDivider" style="height: 1px; background: #e2e8f0; margin: 0 20px 16px;"></div>
 
                     <!-- TfL Alerts -->
                     <div id="alertsBanner" style="display: none;"></div>
@@ -475,7 +483,7 @@
                     </div>
 
                     <!-- Vote buttons + dots -->
-                    <div style="padding: 10px 20px;">
+                    <div id="voteArea" style="padding: 10px 20px;">
                         <div id="voteDots" style="display: flex; justify-content: center; gap: 6px; margin-bottom: 10px;"></div>
                         <div style="display: flex; gap: 8px;">
                             <button type="button" id="voteNoBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Previous">
@@ -489,6 +497,11 @@
                                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Review badge -->
+                    <div id="reviewBadge" style="display: none; padding: 0 20px 6px;">
+                        <div id="reviewBadgeInner" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;"></div>
                     </div>
 
                     <!-- Venue info (website, cuisine, phone) -->
@@ -520,7 +533,8 @@
 
                     <!-- Arrival planner -->
                     <div style="padding: 12px 20px; border-top: 1px solid #f1f5f9;">
-                        <h3 style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">Plan your arrival</h3>
+                        <h3 style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">When should everyone leave?</h3>
+                        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">Set a target arrival time and we'll work out each person's departure time.</p>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                             <label for="arrivalTime" style="font-size: 13px; font-weight: 500; color: #475569; white-space: nowrap;">Arrive by</label>
                             <input type="time" id="arrivalTime" class="input-field" style="flex: 1; padding: 8px 12px; font-weight: 600;">
@@ -547,16 +561,18 @@
                         </div>
                     </div>
 
-                    <!-- Fare split -->
-                    <div id="fareSplitSection" style="display: none; margin: 10px 20px 0; padding: 16px; background: linear-gradient(135deg, #ecfdf5, #f0fdf4); border: 1.5px solid #bbf7d0; border-radius: 14px;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
-                            <span style="font-size: 16px;">💳</span>
-                            <h3 style="font-size: 12px; font-weight: 600; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">Travel fares</h3>
+                    <!-- Compact fare split (rendered inside journey section by JS) -->
+                    <div id="fareSplitCompact" style="display: none; margin: 4px 20px 0; padding: 10px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
+                        <div id="fareSplitResult" style="font-size: 12px; color: #15803d; line-height: 1.6;"></div>
+                    </div>
+
+                    <!-- Live tracker (shown after confirmation) -->
+                    <div id="liveTrackerSection" style="display: none; margin: 10px 20px 0;">
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: tracker-pulse 2s ease-in-out infinite;"></span>
+                            <h3 style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Live — Who's where?</h3>
                         </div>
-                        <div id="fareBreakdown" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;"></div>
-                        <div style="border-top: 1px solid #bbf7d0; padding-top: 10px;">
-                            <div id="fareSplitResult" style="font-size: 13px; color: #15803d; line-height: 1.5;"></div>
-                        </div>
+                        <div id="liveTrackerList" style="display: flex; flex-direction: column; gap: 4px;"></div>
                     </div>
 
                 </div>
@@ -588,6 +604,7 @@
 
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes tracker-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } }
     </style>
 
     <script>
@@ -1045,17 +1062,12 @@
         }
 
         function renderFareSplit(venue) {
-            const section = document.getElementById('fareSplitSection');
-            const breakdown = document.getElementById('fareBreakdown');
+            const section = document.getElementById('fareSplitCompact');
             const result = document.getElementById('fareSplitResult');
 
             const fares = venue.times.map(t => ({
                 from: t.from,
                 pence: t.fare?.total_pence ?? null,
-                chargeLevel: t.fare?.charge_level ?? null,
-                zones: (t.fare?.zone_low && t.fare?.zone_high)
-                    ? (t.fare.zone_low === t.fare.zone_high ? `Zone ${t.fare.zone_low}` : `Zones ${t.fare.zone_low}-${t.fare.zone_high}`)
-                    : null,
             }));
 
             const allHaveFares = fares.every(f => f.pence !== null);
@@ -1064,23 +1076,11 @@
                 return;
             }
 
-            breakdown.innerHTML = fares.map(f => `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 13px; color: #374151; font-weight: 500;">${f.from}</span>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        ${f.zones ? `<span style="font-size: 10px; color: #6b7280; background: #f3f4f6; padding: 1px 6px; border-radius: 6px;">${f.zones}</span>` : ''}
-                        ${f.chargeLevel ? `<span style="font-size: 10px; color: #6b7280; background: #f3f4f6; padding: 1px 6px; border-radius: 6px;">${f.chargeLevel}</span>` : ''}
-                        <span style="font-size: 14px; font-weight: 700; color: #166534;">£${(f.pence / 100).toFixed(2)}</span>
-                    </div>
-                </div>
-            `).join('');
-
             const totalPence = fares.reduce((sum, f) => sum + f.pence, 0);
             const fairSharePence = Math.round(totalPence / fares.length);
 
             const settlements = [];
             const diffs = fares.map(f => ({ from: f.from, diff: f.pence - fairSharePence }));
-
             const overpayers = diffs.filter(d => d.diff > 0).sort((a, b) => b.diff - a.diff);
             const underpayers = diffs.filter(d => d.diff < 0).sort((a, b) => a.diff - b.diff);
 
@@ -1091,11 +1091,7 @@
             while (oi < overBalances.length && ui < underBalances.length) {
                 const amount = Math.min(overBalances[oi].remaining, underBalances[ui].remaining);
                 if (amount > 0) {
-                    settlements.push({
-                        payer: underBalances[ui].from,
-                        payee: overBalances[oi].from,
-                        pence: amount,
-                    });
+                    settlements.push({ payer: underBalances[ui].from, payee: overBalances[oi].from, pence: amount });
                 }
                 overBalances[oi].remaining -= amount;
                 underBalances[ui].remaining -= amount;
@@ -1103,26 +1099,12 @@
                 if (underBalances[ui].remaining <= 0) ui++;
             }
 
-            let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span style="font-size: 12px; color: #6b7280;">Total travel cost</span>
-                <span style="font-size: 14px; font-weight: 700; color: #166534;">£${(totalPence / 100).toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 12px; color: #6b7280;">Fair share each</span>
-                <span style="font-size: 14px; font-weight: 700; color: #166534;">£${(fairSharePence / 100).toFixed(2)}</span>
-            </div>`;
+            let html = `<span style="font-weight: 600;">💳 Total: £${(totalPence / 100).toFixed(2)}</span> · <span>Fair share: £${(fairSharePence / 100).toFixed(2)} each</span>`;
 
-            if (settlements.length === 0) {
-                html += `<p style="font-size: 13px; color: #059669; font-weight: 600;">All even — no one owes anything!</p>`;
-            } else {
-                html += settlements.map(s =>
-                    `<div style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: white; border-radius: 8px; border: 1px solid #d1fae5;">
-                        <span style="font-size: 13px; font-weight: 600; color: #1e293b;">${s.payer}</span>
-                        <span style="font-size: 11px; color: #6b7280;">owes</span>
-                        <span style="font-size: 13px; font-weight: 600; color: #1e293b;">${s.payee}</span>
-                        <span style="margin-left: auto; font-size: 14px; font-weight: 700; color: #059669;">£${(s.pence / 100).toFixed(2)}</span>
-                    </div>`
-                ).join('');
+            if (settlements.length > 0) {
+                html += '<br>' + settlements.map(s =>
+                    `<span style="font-weight: 500;">${s.payer}</span> → ${s.payee} <strong>£${(s.pence / 100).toFixed(2)}</strong>`
+                ).join(' · ');
             }
 
             result.innerHTML = html;
@@ -1311,6 +1293,7 @@
 
             renderFareSplit(venue);
             renderVenueInfo(venue);
+            fetchReviewBadge(venue);
 
             // Arrival planner reset
             currentVenueTimes = venue.times;
@@ -1426,6 +1409,33 @@
             navigateToResult((currentResultIndex + 1) % allResults.length);
         });
 
+        let confirmedPlanId = null;
+        let trackerPollInterval = null;
+
+        function enterConfirmedMode() {
+            document.getElementById('panelIntro').style.display = 'none';
+            document.getElementById('meetingForm').style.display = 'none';
+            document.getElementById('backToBrowsing').style.display = 'block';
+            document.getElementById('browsingDivider').style.display = 'none';
+            document.getElementById('voteArea').style.display = 'none';
+            shareOverlay.style.display = 'block';
+            if (confirmedPlanId) startLiveTracker();
+            document.querySelector('.panel-scroll').scrollTop = 0;
+        }
+
+        function exitConfirmedMode() {
+            document.getElementById('panelIntro').style.display = '';
+            document.getElementById('meetingForm').style.display = '';
+            document.getElementById('backToBrowsing').style.display = 'none';
+            document.getElementById('browsingDivider').style.display = '';
+            document.getElementById('voteArea').style.display = '';
+            shareOverlay.style.display = 'none';
+            document.getElementById('liveTrackerSection').style.display = 'none';
+            if (trackerPollInterval) { clearInterval(trackerPollInterval); trackerPollInterval = null; }
+        }
+
+        document.getElementById('backToBrowsingBtn').addEventListener('click', exitConfirmedMode);
+
         voteYesBtn.addEventListener('click', async function () {
             if (!currentVenue) return;
             voteYesBtn.disabled = true;
@@ -1442,11 +1452,11 @@
                     body: JSON.stringify({ venue: currentVenue, occasion: selectedOccasion }),
                 });
                 const result = await resp.json();
+                confirmedPlanId = result.id;
                 const shareUrl = result.url;
                 const shareText = `Let's meet at ${currentVenue.name}! ${shareUrl}`;
 
                 shareWhatsApp.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-
                 shareCopyBtn.onclick = () => {
                     navigator.clipboard.writeText(shareUrl).then(() => {
                         shareCopyFeedback.textContent = 'Link copied!';
@@ -1455,8 +1465,7 @@
                     });
                 };
 
-                shareOverlay.style.display = 'block';
-                shareOverlay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                enterConfirmedMode();
             } catch (err) {
                 showError('Could not create share link. Please try again.');
             } finally {
@@ -1465,6 +1474,106 @@
                 voteYesBtn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Let\'s go!';
             }
         });
+
+        // ============================
+        //  Live Tracker (in confirmed mode)
+        // ============================
+        function haversineMetres(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+
+        function fmtDist(metres) {
+            if (metres < 50) return 'Here!';
+            if (metres < 200) return 'Nearly there';
+            const miles = metres / 1609.34;
+            if (miles < 0.3) return Math.round(metres) + 'm away';
+            return miles.toFixed(1) + ' mi away';
+        }
+
+        function startLiveTracker() {
+            if (!confirmedPlanId || !currentVenue) return;
+            const section = document.getElementById('liveTrackerSection');
+            const list = document.getElementById('liveTrackerList');
+            section.style.display = 'block';
+
+            list.innerHTML = currentVenue.times.map((t, i) => `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: #f8fafc;" data-tracker-person="${i}">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; flex-shrink: 0;" data-tracker-dot="${i}"></span>
+                    <span style="font-size: 13px; font-weight: 600; color: #334155; flex: 1;">${t.from}</span>
+                    <span style="font-size: 12px; color: #94a3b8; font-weight: 500;" data-tracker-dist="${i}">—</span>
+                </div>
+            `).join('');
+
+            pollTrackerStatuses();
+            trackerPollInterval = setInterval(pollTrackerStatuses, 5000);
+
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        let allArrivedNotified = false;
+
+        async function pollTrackerStatuses() {
+            if (!confirmedPlanId) return;
+            try {
+                const resp = await fetch(`/api/plan/${confirmedPlanId}/status`);
+                if (!resp.ok) return;
+                const data = await resp.json();
+                let allArrived = true;
+
+                (data.statuses || []).forEach(s => {
+                    const dot = document.querySelector(`[data-tracker-dot="${s.person}"]`);
+                    const dist = document.querySelector(`[data-tracker-dist="${s.person}"]`);
+                    const row = document.querySelector(`[data-tracker-person="${s.person}"]`);
+
+                    const dotColors = { pending: '#d1d5db', on_my_way: '#f59e0b', arrived: '#22c55e' };
+                    if (dot) dot.style.background = dotColors[s.status] || '#d1d5db';
+
+                    if (s.status === 'arrived') {
+                        if (dist) { dist.textContent = 'Arrived!'; dist.style.color = '#16a34a'; dist.style.fontWeight = '600'; }
+                        if (row) row.style.background = '#f0fdf4';
+                    } else if (s.status === 'on_my_way' && s.distance_metres != null) {
+                        if (dist) { dist.textContent = fmtDist(s.distance_metres); dist.style.color = '#6366f1'; }
+                    } else {
+                        if (dist) { dist.textContent = 'Waiting'; dist.style.color = '#94a3b8'; }
+                    }
+
+                    if (s.status !== 'arrived') allArrived = false;
+                });
+
+                if (allArrived && (data.statuses || []).length >= 2 && !allArrivedNotified) {
+                    allArrivedNotified = true;
+                    if (trackerPollInterval) { clearInterval(trackerPollInterval); trackerPollInterval = null; }
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification("Everyone's arrived at " + currentVenue.name + "! 🎉", { body: 'Have fun!' });
+                    }
+                }
+            } catch (_) {}
+        }
+
+        // ============================
+        //  Review badge
+        // ============================
+        async function fetchReviewBadge(venue) {
+            const badge = document.getElementById('reviewBadge');
+            const inner = document.getElementById('reviewBadgeInner');
+            badge.style.display = 'none';
+            try {
+                const params = new URLSearchParams({ name: venue.name, lat: venue.lat, lng: venue.lng });
+                const resp = await fetch(`/api/venue-reviews?${params}`);
+                const data = await resp.json();
+                if (!data.has_reviews) return;
+                inner.style.background = data.color + '18';
+                inner.style.color = data.color;
+                inner.innerHTML = `<span>⭐</span> <span>${data.label}</span> <span style="opacity: 0.7; font-weight: 400;">(${data.total} MeetHere ${data.total === 1 ? 'review' : 'reviews'})</span>`;
+                badge.style.display = 'block';
+            } catch (_) {}
+        }
 
         // ============================
         //  Form submit
@@ -1505,6 +1614,9 @@
 
                 allResults = [data.best, ...(data.alternatives || [])];
                 currentResultIndex = 0;
+                confirmedPlanId = null;
+                allArrivedNotified = false;
+                exitConfirmedMode();
                 shareOverlay.style.display = 'none';
 
                 renderAlerts(data.alerts || []);

@@ -298,4 +298,97 @@ class MeetingPointController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    /**
+     * Generate a stable cache key for a venue based on name + coordinates.
+     */
+    private function venueKey(string $name, float $lat, float $lng): string
+    {
+        return 'reviews:' . md5(strtolower(trim($name)) . ':' . round($lat, 3) . ':' . round($lng, 3));
+    }
+
+    /**
+     * POST /api/review
+     */
+    public function submitReview(Request $request)
+    {
+        $validated = $request->validate([
+            'venue_name' => 'required|string|max:200',
+            'venue_lat'  => 'required|numeric|between:-90,90',
+            'venue_lng'  => 'required|numeric|between:-180,180',
+            'rating'     => 'required|string|in:positive,negative',
+            'plan_id'    => 'nullable|string|max:20',
+        ]);
+
+        $key = $this->venueKey($validated['venue_name'], $validated['venue_lat'], $validated['venue_lng']);
+        $reviews = Cache::get($key, []);
+
+        if ($validated['plan_id']) {
+            foreach ($reviews as $r) {
+                if (($r['plan_id'] ?? null) === $validated['plan_id']) {
+                    return response()->json(['ok' => true, 'duplicate' => true]);
+                }
+            }
+        }
+
+        $reviews[] = [
+            'rating'     => $validated['rating'],
+            'plan_id'    => $validated['plan_id'] ?? null,
+            'created_at' => now()->toIso8601String(),
+        ];
+
+        Cache::put($key, $reviews, now()->addDays(365));
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * GET /api/venue-reviews
+     */
+    public function getVenueReviews(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'lat'  => 'required|numeric',
+            'lng'  => 'required|numeric',
+        ]);
+
+        $key = $this->venueKey($validated['name'], (float) $validated['lat'], (float) $validated['lng']);
+        $reviews = Cache::get($key, []);
+
+        if (empty($reviews)) {
+            return response()->json(['has_reviews' => false]);
+        }
+
+        $total = count($reviews);
+        $positive = count(array_filter($reviews, fn($r) => $r['rating'] === 'positive'));
+        $pct = round($positive / $total * 100);
+
+        $label = match (true) {
+            $pct >= 95 && $total >= 10 => 'Overwhelmingly Positive',
+            $pct >= 80 && $total >= 5  => 'Very Positive',
+            $pct >= 80                 => 'Positive',
+            $pct >= 70                 => 'Mostly Positive',
+            $pct >= 40                 => 'Mixed',
+            $pct >= 20                 => 'Mostly Negative',
+            $pct < 20 && $total >= 5   => 'Very Negative',
+            $pct < 20 && $total >= 10  => 'Overwhelmingly Negative',
+            default                    => 'Negative',
+        };
+
+        $color = match (true) {
+            $pct >= 70 => '#22c55e',
+            $pct >= 40 => '#f59e0b',
+            default    => '#ef4444',
+        };
+
+        return response()->json([
+            'has_reviews' => true,
+            'label'       => $label,
+            'color'       => $color,
+            'percentage'  => $pct,
+            'total'       => $total,
+            'positive'    => $positive,
+        ]);
+    }
 }
