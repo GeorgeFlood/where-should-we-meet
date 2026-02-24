@@ -521,6 +521,10 @@
                                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                                 Copy link
                             </button>
+                            <button type="button" id="shareEmailBtn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px; background:rgb(243, 42, 48); color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;".\>
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                Email
+                            </button>   
                         </div>
                         <p id="shareCopyFeedback" style="display: none; font-size: 12px; color: #059669; text-align: center; margin-top: 8px; font-weight: 500;"></p>
                     </div>
@@ -1374,6 +1378,7 @@
         const shareOverlay = document.getElementById('shareOverlay');
         const shareWhatsApp = document.getElementById('shareWhatsApp');
         const shareCopyBtn = document.getElementById('shareCopyBtn');
+        const shareEmailBtn = document.getElementById('shareEmailBtn');
         const shareCopyFeedback = document.getElementById('shareCopyFeedback');
 
         function updateVoteCounter() {
@@ -1465,6 +1470,17 @@
                     });
                 };
 
+                shareEmailBtn.onclick = () => {
+                         const email = '';
+                        const emailSubject = `Let's meet at ${currentVenue.name}!`;
+                        const subjectBody = `Let's start with this link:\n\n${shareUrl}`;
+
+                        const mailToLink = `mailto:${email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(subjectBody)}`;
+
+                        window.location.href = mailToLink;
+                }
+
+                
                 enterConfirmedMode();
             } catch (err) {
                 showError('Could not create share link. Please try again.');
