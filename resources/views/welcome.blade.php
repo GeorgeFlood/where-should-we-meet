@@ -17,6 +17,10 @@
     <meta name="color-scheme" content="light">
 
     <title>Midway — Find the fairest meeting spot in London</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="/midwayFavi16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/midwayFavi32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/midwayFavi48.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/midwayFavi.png">
     <meta name="description" content="Enter your postcodes, pick the vibe, and we'll find the fairest meeting spot in London with TfL directions, fare splitting, and live arrival tracking.">
     <meta name="keywords" content="meeting point, London, TfL, fair meeting, postcode, where to meet, travel planner">
     <link rel="canonical" href="{{ config('app.url') }}">
