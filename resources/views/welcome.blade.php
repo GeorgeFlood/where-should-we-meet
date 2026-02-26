@@ -401,8 +401,9 @@
                     <div id="postcodeInputs" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
                         <div class="postcode-row" style="display: flex; align-items: center; gap: 10px;">
                             <div class="person-marker" style="width: 28px; height: 28px; font-size: 12px; flex-shrink: 0; box-shadow: none; border: 2px solid #e0e7ff;">1</div>
-                            <input type="text" placeholder="e.g. SW1A 1AA" class="input-field" name="postcode" required>
-                            <button type="button" class="gps-btn" title="Use my location">
+                            <input type="text" placeholder="e.g. SW1A 1AA" class="input-field" name="postcode" required aria-label="Enter Postcode" 
+                            >
+                            <button type="button" class="gps-btn" title="Use my location" >
                                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M2 12h2m16 0h2m-5 0a5 5 0 11-10 0 5 5 0 0110 0zm-3 0a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </button>
                             <button type="button" class="remove-btn" style="display: none; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px;" title="Remove">
@@ -411,7 +412,8 @@
                         </div>
                         <div class="postcode-row" style="display: flex; align-items: center; gap: 10px;">
                             <div class="person-marker" style="width: 28px; height: 28px; font-size: 12px; flex-shrink: 0; box-shadow: none; border: 2px solid #e0e7ff;">2</div>
-                            <input type="text" placeholder="e.g. E1 6AN" class="input-field" name="postcode" required>
+                            <input type="text" placeholder="e.g. E1 6AN" class="input-field" name="postcode" required aria-label="Enter Postcode" 
+                            >
                             <button type="button" class="gps-btn" title="Use my location">
                                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M2 12h2m16 0h2m-5 0a5 5 0 11-10 0 5 5 0 0110 0zm-3 0a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </button>
@@ -434,7 +436,7 @@
                     </div>
 
                     <!-- Submit -->
-                    <button type="submit" id="submitBtn" style="width: 100%; padding: 14px; background: #4f46e5; color: white; font-size: 15px; font-weight: 600; border: none; border-radius: 14px; cursor: pointer; font-family: inherit; transition: background 0.15s; box-shadow: 0 2px 8px rgba(79,70,229,0.3);" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
+                    <button type="submit" id="submitBtn" style="width: 100%; padding: 14px; background: #4f46e5; color: white; font-size: 15px; font-weight: 600; border: none; border-radius: 14px; cursor: pointer; font-family: inherit; transition: background 0.15s; box-shadow: 0 2px 8px rgba(79,70,229,0.3);" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'" aria-label="Find the perfect spot" >
                         <span id="submitText">Find the perfect spot</span>
                         <span id="submitLoading" style="display: none; align-items: center; justify-content: center; gap: 8px;">
                             <svg style="animation: spin 1s linear infinite; width: 18px; height: 18px;" viewBox="0 0 24 24"><circle style="opacity: 0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path style="opacity: 0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
@@ -490,14 +492,14 @@
                     <div id="voteArea" style="padding: 10px 20px;">
                         <div id="voteDots" style="display: flex; justify-content: center; gap: 6px; margin-bottom: 10px;"></div>
                         <div style="display: flex; gap: 8px;">
-                            <button type="button" id="voteNoBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Previous">
+                            <button type="button" id="voteNoBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Previous" aria-label="Previous Venue">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                             </button>
-                            <button type="button" id="voteYesBtn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; background: #4f46e5; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; box-shadow: 0 2px 8px rgba(79,70,229,0.3);">
+                            <button type="button" id="voteYesBtn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; background: #4f46e5; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; box-shadow: 0 2px 8px rgba(79,70,229,0.3);" aria-label="Let's go!">
                                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 Let's go!
                             </button>
-                            <button type="button" id="voteNextBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Next">
+                            <button type="button" id="voteNextBtn" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; flex-shrink: 0;" title="Next" aria-label="Next Venue" >
                                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
@@ -545,7 +547,8 @@
                         <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">When do you all need to be there? We'll tell each person when to leave.</p>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                             <label for="arrivalTime" style="font-size: 13px; font-weight: 500; color: #475569; white-space: nowrap;">Meet at</label>
-                            <input type="time" id="arrivalTime" class="input-field" style="flex: 1; padding: 8px 12px; font-weight: 600;">
+                            <input type="time" id="arrivalTime" class="input-field" style="flex: 1; padding: 8px 12px; font-weight: 600;" aria-label="Arrange time Input" 
+                            >
                             <button type="button" id="arrivalNowBtn" class="pill-btn" style="font-size: 12px; padding: 8px 12px;">Now + 1h</button>
                         </div>
                         <div id="departureTimes" style="display: none; flex-direction: column; gap: 8px;"></div>
@@ -787,6 +790,7 @@
             const card = document.createElement('button');
             card.type = 'button';
             card.dataset.occasion = id;
+           card.setAttribute('aria-label', `${occ.label}`);
             card.className = 'occasion-card' + (id === 'casual' ? ' active' : '');
             card.innerHTML = `
                 <div class="oc-icon" style="background: ${occ.bg};">${occ.icon}</div>
@@ -826,7 +830,7 @@
             row.style.cssText = 'display: flex; align-items: center; gap: 10px;';
             row.innerHTML = `
                 <div class="person-marker" style="width: 28px; height: 28px; font-size: 12px; flex-shrink: 0; box-shadow: none; border: 2px solid #e0e7ff;">${count + 1}</div>
-                <input type="text" placeholder="e.g. N1 9GU" class="input-field" name="postcode" required>
+                <input type="text" placeholder="e.g. N1 9GU" class="input-field" name="postcode" required aria-label="Enter Postcode">
                 <button type="button" class="gps-btn" title="Use my location">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M2 12h2m16 0h2m-5 0a5 5 0 11-10 0 5 5 0 0110 0zm-3 0a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 </button>
