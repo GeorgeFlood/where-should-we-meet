@@ -488,6 +488,11 @@
                             <h3 style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Live — Who's where?</h3>
                         </div>
                         <div id="confirmedTrackerList" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                        <div id="confirmedTrackerAction" style="display: none; padding: 10px 0 4px;">
+                            <button type="button" id="confirmedTrackerBtn" style="width:100%;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">
+                                🚶 I'm on my way!
+                            </button>
+                        </div>
                     </div>
 
                     <div style="height: 20px;"></div>
@@ -1147,6 +1152,7 @@
                 document.getElementById('confirmedShareOverlay').style.display =
                     (session.participant_count >= 2) ? 'none' : 'block';
                 if (confirmedPlanId) startTrackerPoll();
+                if (isSessionMode && session.participant_count >= 2) setupSessionTracking(session);
             }
         }
     }
@@ -1305,6 +1311,106 @@
         trackerPollInterval = setInterval(pollTrackerStatuses, 5000);
     }
 
+    let myPersonIndex = null;
+    let myTrackingStatus = 'pending';
+    let geoWatchId = null;
+    let lastLocationSent = 0;
+    const AUTO_ARRIVE_METRES = 50;
+
+    function setupSessionTracking(session) {
+        if (!confirmedPlanId) return;
+        myPersonIndex = session.my_person_index;
+        if (myPersonIndex === null || myPersonIndex === undefined) return;
+        document.getElementById('confirmedTrackerAction').style.display = 'block';
+        updateTrackingButton();
+        if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    }
+
+    function updateTrackingButton() {
+        const btn = document.getElementById('confirmedTrackerBtn');
+        if (!btn) return;
+        if (myTrackingStatus === 'pending') {
+            btn.style.cssText = 'width:100%;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:#f59e0b;color:white;transition:all 0.15s;';
+            btn.innerHTML = '🚶 I\'m on my way!'; btn.disabled = false;
+        } else if (myTrackingStatus === 'on_my_way') {
+            btn.style.cssText = 'width:100%;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:#22c55e;color:white;transition:all 0.15s;';
+            btn.innerHTML = '📍 I\'ve arrived!'; btn.disabled = false;
+        } else {
+            btn.style.cssText = 'width:100%;padding:14px;border-radius:12px;font-size:14px;font-weight:600;font-family:inherit;background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;cursor:default;transition:all 0.15s;';
+            btn.innerHTML = '✅ You\'re here!'; btn.disabled = true;
+            stopSessionGeo();
+        }
+    }
+
+    document.getElementById('confirmedTrackerBtn').addEventListener('click', async function () {
+        if (myPersonIndex === null) return;
+        let newStatus;
+        if (myTrackingStatus === 'pending') newStatus = 'on_my_way';
+        else if (myTrackingStatus === 'on_my_way') newStatus = 'arrived';
+        else return;
+        this.disabled = true;
+        try {
+            const resp = await fetch(`/api/plan/${confirmedPlanId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ person: myPersonIndex, status: newStatus }),
+            });
+            if (resp.ok) {
+                myTrackingStatus = newStatus;
+                updateTrackingButton();
+                if (newStatus === 'on_my_way') startSessionGeo();
+                else if (newStatus === 'arrived') {
+                    stopSessionGeo();
+                    const v = sessionData?.confirmed_venue;
+                    if (v) sendTrackingUpdate(v.lat, v.lng, 0);
+                }
+                pollTrackerStatuses();
+            }
+        } catch (_) { this.disabled = false; }
+    });
+
+    function startSessionGeo() {
+        if (geoWatchId !== null || !navigator.geolocation) return;
+        geoWatchId = navigator.geolocation.watchPosition(
+            async (pos) => {
+                const myLat = pos.coords.latitude, myLng = pos.coords.longitude;
+                const v = sessionData?.confirmed_venue;
+                if (!v) return;
+                const dist = haversineMetres(myLat, myLng, v.lat, v.lng);
+                if (dist <= AUTO_ARRIVE_METRES && myTrackingStatus === 'on_my_way') {
+                    myTrackingStatus = 'arrived';
+                    updateTrackingButton();
+                    stopSessionGeo();
+                    await sendTrackingUpdate(v.lat, v.lng, 0);
+                    pollTrackerStatuses();
+                    return;
+                }
+                const now = Date.now();
+                if (now - lastLocationSent > 15000) {
+                    lastLocationSent = now;
+                    sendTrackingUpdate(myLat, myLng, dist);
+                }
+            },
+            () => {},
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+        );
+    }
+
+    function stopSessionGeo() {
+        if (geoWatchId !== null) { navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+    }
+
+    async function sendTrackingUpdate(lat, lng, dist) {
+        if (!confirmedPlanId || myPersonIndex === null) return;
+        try {
+            await fetch(`/api/plan/${confirmedPlanId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ person: myPersonIndex, status: myTrackingStatus, lat, lng, distance_metres: Math.round(dist) }),
+            });
+        } catch (_) {}
+    }
+
     async function pollTrackerStatuses() {
         const planId = confirmedPlanId;
         if (!planId) return;
@@ -1317,15 +1423,21 @@
             let allArrived = true;
             (data.statuses || []).forEach(s => {
                 const dotColor = { pending: '#d1d5db', on_my_way: '#f59e0b', arrived: '#22c55e' }[s.status] || '#d1d5db';
+                const isMe = myPersonIndex !== null && s.person === myPersonIndex;
                 let statusText = 'Waiting';
                 if (s.status === 'arrived') { statusText = 'Arrived!'; }
                 else if (s.status === 'on_my_way' && s.distance_metres != null) { statusText = fmtDist(s.distance_metres); }
                 if (s.status !== 'arrived') allArrived = false;
-                list.innerHTML += `<div class="participant-pill"><div class="participant-dot" style="background:${dotColor};"></div><span style="font-weight:600;flex:1;">${s.postcode}</span><span style="font-size:12px;color:${s.status === 'arrived' ? '#16a34a' : '#94a3b8'};font-weight:${s.status === 'arrived' ? '600' : '400'};">${statusText}</span></div>`;
+                if (isMe && s.status !== myTrackingStatus && s.status !== 'pending') {
+                    myTrackingStatus = s.status;
+                    updateTrackingButton();
+                }
+                list.innerHTML += `<div class="participant-pill" style="${isMe ? 'background:#eef2ff;' : ''}"><div class="participant-dot" style="background:${dotColor};${s.status === 'on_my_way' ? 'animation:tracker-pulse 1.5s ease-in-out infinite;' : ''}"></div><span style="font-weight:600;flex:1;">${s.postcode}${isMe ? ' <span style="font-size:10px;color:#6366f1;font-weight:600;">(you)</span>' : ''}</span><span style="font-size:12px;color:${s.status === 'arrived' ? '#16a34a' : (s.status === 'on_my_way' ? '#6366f1' : '#94a3b8')};font-weight:${s.status !== 'pending' ? '600' : '400'};">${statusText}</span></div>`;
             });
             if (allArrived && (data.statuses || []).length >= 2 && !allArrivedNotified) {
                 allArrivedNotified = true;
                 if (trackerPollInterval) { clearInterval(trackerPollInterval); trackerPollInterval = null; }
+                stopSessionGeo();
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification("Everyone's arrived! 🎉", { body: 'Have fun!' });
                 }

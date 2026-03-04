@@ -385,6 +385,20 @@ class SessionController extends Controller
             }
         }
 
+        $myPersonIndex = null;
+        if ($myToken) {
+            $me = collect($session['participants'])->firstWhere('token', $myToken);
+            if ($me && $session['confirmed_venue'] && isset($session['confirmed_venue']['times'])) {
+                $myPc = strtoupper(trim($me['postcode']));
+                foreach ($session['confirmed_venue']['times'] as $i => $t) {
+                    if (strtoupper(trim($t['from'] ?? '')) === $myPc) {
+                        $myPersonIndex = $i;
+                        break;
+                    }
+                }
+            }
+        }
+
         return [
             'status'            => $session['status'],
             'occasion'          => $session['occasion'],
@@ -395,6 +409,7 @@ class SessionController extends Controller
             'vote_counts'       => (object) $voteCounts,
             'vote_details'      => $voteDetails,
             'my_vote'           => $myVote,
+            'my_person_index'   => $myPersonIndex,
             'confirmed_venue'   => $confirmedVenue,
             'plan_id'           => $session['plan_id'] ?? null,
             'plan_url'          => isset($session['plan_id']) ? url("/plan/{$session['plan_id']}") : null,
