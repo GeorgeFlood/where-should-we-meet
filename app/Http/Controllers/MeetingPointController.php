@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MeetingPointService;
+use App\Services\PostcodeService;
 use App\Services\TflServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -147,7 +148,7 @@ class MeetingPointController extends Controller
             $tracker = Cache::get("tracker:{$id}:{$i}");
             $entry = [
                 'person'     => $i,
-                'postcode'   => $t['from'],
+                'postcode'   => PostcodeService::mask($t['from']),
                 'status'     => $tracker['status'] ?? 'pending',
                 'updated_at' => $tracker['updated_at'] ?? null,
             ];

@@ -294,17 +294,35 @@ class SessionController extends Controller
 
     /**
      * Strip tokens and build the public-facing session state.
+     * Postcodes are masked to outward code only for privacy.
      */
     private function publicSession(array $session, ?string $myToken = null): array
     {
         $participants = array_map(function ($p) {
             return [
-                'postcode'  => $p['postcode'],
+                'postcode'  => PostcodeService::mask($p['postcode']),
                 'lat'       => $p['lat'] ?? null,
                 'lng'       => $p['lng'] ?? null,
                 'joined_at' => $p['joined_at'],
             ];
         }, $session['participants']);
+
+        $maskedManualPostcodes = array_map(
+            fn($pc) => PostcodeService::mask($pc),
+            $session['manual_postcodes']
+        );
+
+        $venues = $this->maskVenuePostcodes($session['venues']);
+
+        $confirmedVenue = $session['confirmed_venue'];
+        if ($confirmedVenue && isset($confirmedVenue['times'])) {
+            $confirmedVenue['times'] = array_map(function ($t) {
+                if (isset($t['from'])) {
+                    $t['from'] = PostcodeService::mask($t['from']);
+                }
+                return $t;
+            }, $confirmedVenue['times']);
+        }
 
         $voteCounts = array_count_values($session['votes'] ?? []);
 
@@ -317,16 +335,31 @@ class SessionController extends Controller
             'status'            => $session['status'],
             'occasion'          => $session['occasion'],
             'participants'      => $participants,
-            'manual_postcodes'  => $session['manual_postcodes'],
+            'manual_postcodes'  => $maskedManualPostcodes,
             'participant_count' => count($session['participants']) + count($session['manual_postcodes']),
-            'venues'            => $session['venues'],
+            'venues'            => $venues,
             'vote_counts'       => (object) $voteCounts,
             'my_vote'           => $myVote,
-            'confirmed_venue'   => $session['confirmed_venue'],
+            'confirmed_venue'   => $confirmedVenue,
             'plan_id'           => $session['plan_id'] ?? null,
             'plan_url'          => isset($session['plan_id']) ? url("/plan/{$session['plan_id']}") : null,
             'alerts'            => $session['alerts'] ?? [],
             'centroid'          => $session['centroid'] ?? null,
         ];
+    }
+
+    private function maskVenuePostcodes(array $venues): array
+    {
+        return array_map(function ($venue) {
+            if (isset($venue['times'])) {
+                $venue['times'] = array_map(function ($t) {
+                    if (isset($t['from'])) {
+                        $t['from'] = PostcodeService::mask($t['from']);
+                    }
+                    return $t;
+                }, $venue['times']);
+            }
+            return $venue;
+        }, $venues);
     }
 }

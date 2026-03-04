@@ -1398,11 +1398,58 @@
         const input = document.getElementById('selfPostcodeInput');
         const pc = input.value.trim();
         if (!pc) { input.focus(); return; }
-        if (isJoining && sessionId) { await joinSession(sessionId, { postcode: pc }); }
-        else { await createSession({ postcode: pc }); }
+
+        const btn = document.getElementById('submitSelfPostcodeBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<svg style="animation:spin 1s linear infinite;width:16px;height:16px;" viewBox="0 0 24 24"><circle style="opacity:0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path style="opacity:0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>';
+
+        if (personMarkers['self']) { map.removeLayer(personMarkers['self']); delete personMarkers['self']; }
+
+        if (isJoining && sessionId) {
+            document.getElementById('searchingStepText').textContent = 'Joining session...';
+            showView('viewSearching');
+            const joinTimeouts = [];
+            loadingSteps.forEach((step, i) => {
+                if (i === 0) return;
+                joinTimeouts.push(setTimeout(() => {
+                    const el = document.getElementById('searchingStepText');
+                    el.style.transition = 'opacity 0.2s'; el.style.opacity = '0';
+                    setTimeout(() => { el.textContent = step.text; el.style.opacity = '1'; }, 200);
+                }, step.delay));
+            });
+            await joinSession(sessionId, { postcode: pc });
+            joinTimeouts.forEach(t => clearTimeout(t));
+            const active = document.querySelector('.view.active')?.id;
+            if (active === 'viewSearching') {
+                showView('viewLocationPrompt');
+                document.getElementById('manualPostcodeEntry').style.display = 'block';
+                btn.disabled = false; btn.textContent = 'Go';
+            }
+        } else {
+            await createSession({ postcode: pc });
+            btn.disabled = false; btn.textContent = 'Go';
+        }
     });
     document.getElementById('selfPostcodeInput').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') document.getElementById('submitSelfPostcodeBtn').click();
+    });
+
+    // Live geocode preview for session join postcode
+    let selfGeoTimer = null;
+    document.getElementById('selfPostcodeInput').addEventListener('input', () => {
+        clearTimeout(selfGeoTimer);
+        selfGeoTimer = setTimeout(async () => {
+            const result = await geocodePostcode(document.getElementById('selfPostcodeInput').value);
+            if (result) {
+                if (personMarkers['self']) { personMarkers['self'].setLatLng([result.lat, result.lng]); }
+                else {
+                    const icon = L.divIcon({ className: '', html: '<div class="person-marker animate-drop">📍</div>', iconSize: [36, 36], iconAnchor: [18, 18] });
+                    personMarkers['self'] = L.marker([result.lat, result.lng], { icon }).addTo(map);
+                }
+                personMarkers['self'].bindTooltip(result.postcode, { direction: 'top', offset: [0, -20] });
+                fitAllMarkers();
+            } else if (personMarkers['self']) { map.removeLayer(personMarkers['self']); delete personMarkers['self']; }
+        }, 600);
     });
 
     // Location Prompt: Back
