@@ -7,5 +7,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/s/{id}', function () {
+    return view('welcome');
+});
+
 Route::get('/plan/{id}', [MeetingPointController::class, 'viewPlan']);
 

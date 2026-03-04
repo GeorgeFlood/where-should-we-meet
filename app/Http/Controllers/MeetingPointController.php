@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FoursquareService;
-use App\Services\PostcodeService;
+use App\Services\MeetingPointService;
 use App\Services\TflServices;
-use App\Services\VenueService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -13,29 +11,17 @@ use Illuminate\Support\Str;
 class MeetingPointController extends Controller
 {
     public function __construct(
+        private MeetingPointService $meetingPointService,
         private TflServices $tfl,
-        private PostcodeService $postcodes,
-        private VenueService $venues,
-        private FoursquareService $foursquare,
     ) {}
 
     /**
      * POST /api/find
      *
-     * The main algorithm:
-     *  1. Geocode all postcodes
-     *  2. Calculate the geographic centroid
-     *  3. Search for quality venues near the centroid
-     *     → Foursquare-first when an occasion is provided (pre-enriched results)
-     *     → OSM fallback for legacy type searches or when Foursquare is unavailable
-     *  4. Get TFL journey times from every person to every candidate venue (concurrently)
-     *  5. Rank venues by minimax fairness (lowest worst-case journey)
-     *  6. Return the best match + runner-ups
+     * Validates input and delegates to MeetingPointService.
      */
     public function find(Request $request)
     {
-        set_time_limit(120);
-
         $validated = $request->validate([
             'locations'   => 'required|array|min:2',
             'locations.*' => 'required|string',
@@ -43,99 +29,22 @@ class MeetingPointController extends Controller
             'occasion'    => 'nullable|string|in:casual,date,coffee,work,celebration',
         ]);
 
-        $postcodes = $validated['locations'];
-        $occasion = $validated['occasion'] ?? null;
-        $type = $validated['type'] ?? 'any';
+        $result = $this->meetingPointService->findVenues(
+            $validated['locations'],
+            $validated['occasion'] ?? null,
+            $validated['type'] ?? 'any',
+        );
 
-        // 1. Geocode all postcodes
-        $geocoded = $this->postcodes->geocode($postcodes);
-
-        $validPoints = array_filter($geocoded);
-        if (count($validPoints) < 2) {
-            return response()->json([
-                'error' => 'Could not geocode one or more postcodes. Please check they are valid UK postcodes.',
-            ], 422);
+        if (isset($result['error'])) {
+            return response()->json(['error' => $result['error']], $result['status']);
         }
 
-        // 2. Calculate centroid
-        $centroid = $this->postcodes->centroid($validPoints);
-
-        // 3. Search for venues via OSM
-        $venues = [];
-        $searchType = $occasion ? $this->occasionToType($occasion) : $type;
-
-        foreach ([3000, 6000] as $radius) {
-            $venues = $this->venues->search(
-                $centroid['lat'],
-                $centroid['lng'],
-                $searchType,
-                $radius,
-                limit: 15,
-            );
-            if (count($venues) >= 5) break;
-        }
-
-        if (empty($venues)) {
-            return response()->json([
-                'error' => 'No suitable venues found in the area. Try a different occasion or search.',
-            ], 404);
-        }
-
-        // 4 & 5. Get journey times and rank by fairness
-        $ranked = $this->tfl->rankVenuesByFairness($venues, $postcodes);
-
-        if (empty($ranked)) {
-            return response()->json([
-                'error' => 'Could not calculate journey times. The TFL API may be temporarily unavailable.',
-            ], 502);
-        }
-
-        // 6. Top results
-        $topResults = array_slice($ranked, 0, 5);
-
-        // 7. Collect line names used in journeys and fetch relevant disruptions
-        $usedLines = [];
-        foreach ($topResults as $venue) {
-            foreach ($venue['times'] ?? [] as $t) {
-                foreach ($t['legs'] ?? [] as $leg) {
-                    if (!empty($leg['line'])) {
-                        $usedLines[strtolower($leg['line'])] = $leg['line'];
-                    }
-                }
-            }
-        }
-
-        $alerts = [];
-        if (!empty($usedLines)) {
-            $allDisruptions = $this->tfl->getLineDisruptions();
-            foreach ($allDisruptions as $d) {
-                if (isset($usedLines[strtolower($d['line'])])) {
-                    $alerts[] = $d;
-                }
-            }
-        }
-
-        // 8. Return best result + alternatives + alerts
         return response()->json([
-            'best'         => $topResults[0],
-            'alternatives' => array_slice($topResults, 1),
-            'centroid'     => $centroid,
-            'alerts'       => $alerts,
+            'best'         => $result['venues'][0],
+            'alternatives' => array_slice($result['venues'], 1),
+            'centroid'     => $result['centroid'],
+            'alerts'       => $result['alerts'],
         ]);
-    }
-
-    /**
-     * Map an occasion to an OSM venue type for fallback searches.
-     */
-    private function occasionToType(string $occasion): string
-    {
-        return match ($occasion) {
-            'date'           => 'restaurant',
-            'coffee', 'work' => 'cafe',
-            'celebration'    => 'entertainment',
-            'casual'         => 'pub',
-            default          => 'any',
-        };
     }
 
     /**

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MeetingPointController;
+use App\Http\Controllers\SessionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -15,3 +16,9 @@ Route::get('/plan/{id}/status', [MeetingPointController::class, 'getTrackerStatu
 Route::post('/plan/{id}/status', [MeetingPointController::class, 'updateTrackerStatus']);
 Route::post('/review', [MeetingPointController::class, 'submitReview']);
 Route::get('/venue-reviews', [MeetingPointController::class, 'getVenueReviews']);
+
+Route::post('/session', [SessionController::class, 'create']);
+Route::get('/session/{id}', [SessionController::class, 'show']);
+Route::post('/session/{id}/join', [SessionController::class, 'join']);
+Route::post('/session/{id}/vote', [SessionController::class, 'vote']);
+Route::post('/session/{id}/postcode', [SessionController::class, 'addPostcode']);
