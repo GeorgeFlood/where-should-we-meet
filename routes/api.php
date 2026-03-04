@@ -21,4 +21,5 @@ Route::post('/session', [SessionController::class, 'create']);
 Route::get('/session/{id}', [SessionController::class, 'show']);
 Route::post('/session/{id}/join', [SessionController::class, 'join']);
 Route::post('/session/{id}/vote', [SessionController::class, 'vote']);
+Route::post('/session/{id}/occasion', [SessionController::class, 'changeOccasion']);
 Route::post('/session/{id}/postcode', [SessionController::class, 'addPostcode']);

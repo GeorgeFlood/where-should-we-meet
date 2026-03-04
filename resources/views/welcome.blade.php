@@ -349,6 +349,10 @@
                 <div id="viewResults" class="view">
                     <div id="alertsBanner" style="display: none;"></div>
 
+                    <div id="resultOccasionFilter" style="padding: 8px 20px 4px;">
+                        <div style="display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;"></div>
+                    </div>
+
                     <div id="resultHeader" class="result-header">
                         <div style="display: flex; align-items: flex-start; justify-content: space-between;">
                             <div style="flex: 1; min-width: 0;">
@@ -622,6 +626,7 @@
     let trackerPollInterval = null;
     let allArrivedNotified = false;
     let isSessionMode = false;
+    let lastSearchPostcodes = [];
 
     // ═══════════════════════════════════════
     //  MAP
@@ -698,6 +703,77 @@
     }
     buildOccasionSelector(document.getElementById('occasionSelector'), null);
     buildOccasionSelector(document.getElementById('manualOccasionSelector'), document.getElementById('manualOccasionInput'));
+
+    // ═══════════════════════════════════════
+    //  RESULTS: Occasion filter pills
+    // ═══════════════════════════════════════
+    function buildResultOccasionFilter() {
+        const container = document.getElementById('resultOccasionFilter').querySelector('div');
+        container.innerHTML = '';
+        Object.entries(occasions).forEach(([id, occ]) => {
+            const active = id === selectedOccasion;
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.dataset.occasion = id;
+            pill.style.cssText = `display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid ${active ? '#6366f1' : '#e2e8f0'};background:${active ? '#eef2ff' : 'white'};color:${active ? '#4338ca' : '#64748b'};cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.15s;flex-shrink:0;`;
+            pill.textContent = `${occ.icon} ${occ.label}`;
+            pill.addEventListener('click', () => changeOccasionFilter(id));
+            container.appendChild(pill);
+        });
+    }
+
+    async function changeOccasionFilter(newOccasion) {
+        if (newOccasion === selectedOccasion) return;
+        selectedOccasion = newOccasion;
+
+        document.getElementById('searchingStepText').textContent = 'Searching for new spots...';
+        showView('viewSearching');
+        const searchTimeouts = [];
+        loadingSteps.forEach((step, i) => {
+            if (i === 0) return;
+            searchTimeouts.push(setTimeout(() => {
+                const el = document.getElementById('searchingStepText');
+                el.style.transition = 'opacity 0.2s'; el.style.opacity = '0';
+                setTimeout(() => { el.textContent = step.text; el.style.opacity = '1'; }, 200);
+            }, step.delay));
+        });
+
+        try {
+            if (isSessionMode && sessionId) {
+                const resp = await fetch(`/api/session/${sessionId}/occasion`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ occasion: newOccasion }),
+                });
+                const data = await resp.json();
+                if (data.session) {
+                    sessionData = data.session;
+                    handleSessionState(data.session);
+                }
+            } else if (lastSearchPostcodes.length >= 2) {
+                const resp = await fetch('/api/find', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ locations: lastSearchPostcodes, occasion: newOccasion }),
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Search failed.');
+                allVenues = [data.best, ...(data.alternatives || [])];
+                currentVenueIndex = 0;
+                renderAlerts(data.alerts || []);
+                renderVenueResult(allVenues[0]);
+                updateVoteUI({ vote_counts: {}, my_vote: null, participant_count: 1 });
+                showView('viewResults');
+                buildResultOccasionFilter();
+                fitAllMarkers();
+            }
+        } catch (_) {
+            showView('viewResults');
+            buildResultOccasionFilter();
+        } finally {
+            searchTimeouts.forEach(t => clearTimeout(t));
+        }
+    }
 
     // ═══════════════════════════════════════
     //  HELPERS
@@ -1045,6 +1121,7 @@
                 renderAlerts(session.alerts || []);
                 if (allVenues.length > 0) renderVenueResult(allVenues[0]);
                 showView('viewResults');
+                buildResultOccasionFilter();
             }
             updateVoteUI(session);
         } else if (session.status === 'confirmed' && session.confirmed_venue) {
@@ -1596,6 +1673,7 @@
         const inputs = document.getElementById('postcodeInputs').querySelectorAll('input[name="postcode"]');
         const locations = Array.from(inputs).map(i => i.value.trim()).filter(v => v);
         if (locations.length < 2) { errText.textContent = 'Please enter at least 2 postcodes.'; errEl.style.display = 'block'; return; }
+        lastSearchPostcodes = locations;
 
         setManualLoading(true);
         try {
@@ -1618,6 +1696,7 @@
             renderVenueResult(allVenues[0]);
             updateVoteUI({ vote_counts: {}, my_vote: null, participant_count: 1 });
             showView('viewResults');
+            buildResultOccasionFilter();
             fitAllMarkers();
         } catch (err) {
             errText.textContent = err.message; errEl.style.display = 'block';

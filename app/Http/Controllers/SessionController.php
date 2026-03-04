@@ -144,6 +144,36 @@ class SessionController extends Controller
     }
 
     /**
+     * POST /api/session/{id}/occasion — Change the occasion and re-search venues.
+     */
+    public function changeOccasion(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'occasion' => 'required|string|in:casual,date,coffee,work,celebration',
+        ]);
+
+        $session = Cache::get("session:{$id}");
+        if (!$session) {
+            return response()->json(['error' => 'Session not found.'], 404);
+        }
+
+        $session['occasion'] = $validated['occasion'];
+        $session['status'] = 'waiting';
+        $session['venues'] = [];
+        $session['votes'] = [];
+        $session['confirmed_venue'] = null;
+        $session['plan_id'] = null;
+
+        $this->maybeSearch($id, $session);
+
+        Cache::put("session:{$id}", $session, now()->addHours(4));
+
+        return response()->json([
+            'session' => $this->publicSession($session),
+        ]);
+    }
+
+    /**
      * POST /api/session/{id}/vote — Vote for a venue.
      */
     public function vote(Request $request, string $id)
@@ -184,7 +214,8 @@ class SessionController extends Controller
     }
 
     /**
-     * Build a participant entry from location data. Reverse-geocodes if only lat/lng provided.
+     * Build a participant entry from location data.
+     * Reverse-geocodes lat/lng→postcode, or forward-geocodes postcode→lat/lng as needed.
      */
     private function buildParticipant(string $token, ?array $location): ?array
     {
@@ -196,6 +227,15 @@ class SessionController extends Controller
 
         if (!$postcode && $lat && $lng) {
             $postcode = $this->reverseGeocode($lat, $lng);
+        }
+
+        if ($postcode && (!$lat || !$lng)) {
+            $geo = $this->postcodes->geocode([$postcode]);
+            if (!empty($geo[0])) {
+                $lat = $geo[0]['lat'];
+                $lng = $geo[0]['lng'];
+                $postcode = $geo[0]['postcode'];
+            }
         }
 
         if (!$postcode) return null;
