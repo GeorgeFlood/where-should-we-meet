@@ -371,6 +371,20 @@ class SessionController extends Controller
             $myVote = $session['votes'][$myToken];
         }
 
+        $voteDetails = [];
+        $tokenToIndex = array_flip(array_column($session['participants'], 'token'));
+        foreach ($session['votes'] as $token => $venueIndex) {
+            if (isset($tokenToIndex[$token])) {
+                $pi = $tokenToIndex[$token];
+                $voteDetails[] = [
+                    'person'      => $pi + 1,
+                    'postcode'    => PostcodeService::mask($session['participants'][$pi]['postcode']),
+                    'venue_index' => $venueIndex,
+                    'venue_name'  => $session['venues'][$venueIndex]['name'] ?? null,
+                ];
+            }
+        }
+
         return [
             'status'            => $session['status'],
             'occasion'          => $session['occasion'],
@@ -379,6 +393,7 @@ class SessionController extends Controller
             'participant_count' => count($session['participants']) + count($session['manual_postcodes']),
             'venues'            => $venues,
             'vote_counts'       => (object) $voteCounts,
+            'vote_details'      => $voteDetails,
             'my_vote'           => $myVote,
             'confirmed_venue'   => $confirmedVenue,
             'plan_id'           => $session['plan_id'] ?? null,

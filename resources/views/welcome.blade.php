@@ -391,6 +391,8 @@
                         </div>
                     </div>
 
+                    <div id="voteSummary" style="display: none; padding: 0 20px 8px;"></div>
+
                     <div id="reviewBadge" style="display: none; padding: 0 20px 6px;">
                         <div id="reviewBadgeInner" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;"></div>
                     </div>
@@ -934,7 +936,10 @@
         return `https://www.google.com/search?q=${encodeURIComponent(venue.name + ' menu ' + (venue.address || 'London'))}`;
     }
     function buildShowtimesUrl(venue) { return venue.website || `https://www.google.com/search?q=${encodeURIComponent(venue.name + ' showtimes today')}`; }
-    function buildBookingUrl(venue) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.name + ' ' + (venue.address || 'London'))}`; }
+    function buildBookingUrl(venue) {
+        if (venue.website) return venue.website;
+        return `https://www.google.com/search?q=${encodeURIComponent(venue.name + ' book a table ' + (venue.address || 'London'))}`;
+    }
 
     function renderVenueInfo(venue) {
         const section = document.getElementById('venueInfoSection');
@@ -1004,7 +1009,15 @@
         // Action buttons
         const actions = document.getElementById('confirmedActions');
         actions.innerHTML = '';
-        if (isFood) actions.innerHTML += `<a href="${buildBookingUrl(venue)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-size:14px;font-weight:600;background:#059669;color:white;text-decoration:none;box-shadow:0 2px 8px rgba(5,150,105,0.3);">📖 Book a table</a>`;
+        if (isFood) {
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(venue.name + ' book a table ' + (venue.address || 'London'))}`;
+            if (venue.website) {
+                actions.innerHTML += `<a href="${venue.website}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-size:14px;font-weight:600;background:#059669;color:white;text-decoration:none;box-shadow:0 2px 8px rgba(5,150,105,0.3);">📖 Book on their site</a>`;
+                actions.innerHTML += `<a href="${searchUrl}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:12px;font-size:13px;font-weight:500;background:#f8fafc;color:#334155;border:1.5px solid #e2e8f0;text-decoration:none;">🔍 Find on OpenTable, DesignMyNight…</a>`;
+            } else {
+                actions.innerHTML += `<a href="${searchUrl}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-size:14px;font-weight:600;background:#059669;color:white;text-decoration:none;box-shadow:0 2px 8px rgba(5,150,105,0.3);">📖 Find booking options</a>`;
+            }
+        }
         if (isCinema) actions.innerHTML += `<a href="${buildShowtimesUrl(venue)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-size:14px;font-weight:600;background:#7e22ce;color:white;text-decoration:none;box-shadow:0 2px 8px rgba(126,34,206,0.3);">🎬 View Showtimes</a>`;
         if (isTheatre) actions.innerHTML += `<a href="${venue.website || `https://www.google.com/search?q=${encodeURIComponent(venue.name + ' whats on today')}`}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-size:14px;font-weight:600;background:#854d0e;color:white;text-decoration:none;">🎭 Shows & Tickets</a>`;
         actions.innerHTML += `<a href="https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;font-size:13px;font-weight:600;background:#f8fafc;color:#334155;border:1.5px solid #e2e8f0;text-decoration:none;">🗺️ Get directions</a>`;
@@ -1131,6 +1144,8 @@
                 showView('viewConfirmed');
                 showConfetti();
                 setupConfirmedShare(session);
+                document.getElementById('confirmedShareOverlay').style.display =
+                    (session.participant_count >= 2) ? 'none' : 'block';
                 if (confirmedPlanId) startTrackerPoll();
             }
         }
@@ -1227,6 +1242,19 @@
         // Nav button states
         document.getElementById('voteNoBtn').style.opacity = allVenues.length > 1 ? '1' : '0.3';
         document.getElementById('voteNextBtn').style.opacity = allVenues.length > 1 ? '1' : '0.3';
+
+        // Vote summary
+        const summaryEl = document.getElementById('voteSummary');
+        const details = session.vote_details || [];
+        if (details.length > 0 && isSessionMode) {
+            summaryEl.style.display = 'block';
+            summaryEl.innerHTML = details.map(d => {
+                const forThis = d.venue_index === currentVenueIndex;
+                return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;"><span style="width:6px;height:6px;border-radius:50%;background:${forThis ? '#4f46e5' : '#cbd5e1'};flex-shrink:0;"></span><span style="color:#64748b;">Person ${d.person}</span><span style="color:#94a3b8;">→</span><span style="font-weight:${forThis ? '600' : '500'};color:${forThis ? '#4f46e5' : '#334155'};">${d.venue_name || 'Unknown'}${forThis ? ' ✓' : ''}</span></div>`;
+            }).join('');
+        } else {
+            summaryEl.style.display = 'none';
+        }
     }
 
     function navigateToVenue(index) {
